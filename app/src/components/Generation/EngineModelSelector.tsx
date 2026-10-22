@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 import { FormControl } from '@/components/ui/form';
 import { HiCheck } from 'react-icons/hi';
-import { HiChevronUpDown, HiCpuChip } from 'react-icons/hi2';
+import { HiChevronUpDown } from 'react-icons/hi2';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -15,7 +15,7 @@ import {
 import { cn } from '@/lib/utils/cn';
 import type { VoiceProfileResponse } from '@/lib/api/types';
 import { getLanguageOptionsForEngine } from '@/lib/constants/languages';
-import { getEngineLogo } from './ModelLogos';
+import { getEngineLogo, CpuAiIcon } from './ModelLogos';
 import type { GenerationFormValues } from '@/lib/hooks/useGenerationForm';
 
 /**
@@ -189,7 +189,7 @@ export function EngineModelSelector({ form, compact, selectedProfile }: EngineMo
         <div className="p-1.5 pb-0 bg-popover shrink-0">
           <div className="px-2 py-1.5 flex items-center gap-2.5">
             <div className="bg-primary/20 text-accent flex h-8 w-8 shrink-0 items-center justify-center rounded-lg shadow-xs">
-              <HiCpuChip className="size-4.5" />
+              <CpuAiIcon className="size-5" />
             </div>
             <div className="flex flex-col min-w-0">
               <p className="text-xs font-semibold leading-tight text-foreground">TTS Engine & Model</p>
