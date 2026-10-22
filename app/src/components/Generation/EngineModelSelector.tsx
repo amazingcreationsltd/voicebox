@@ -157,12 +157,12 @@ export function EngineModelSelector({ form, compact, selectedProfile }: EngineMo
             type="button"
             variant="ghost"
             className={cn(
-              'h-11 text-xs bg-card border border-border rounded-full hover:bg-background/50 transition-all px-3 font-normal flex items-center justify-between w-full gap-2.5',
+              'h-11 text-xs bg-card border border-border rounded-xl hover:bg-background/50 transition-all pl-2 pr-3 font-normal flex items-center justify-between w-full gap-2.5',
               compact && 'h-11 text-xs'
             )}
           >
             <div className="flex items-center gap-2.5 min-w-0 flex-1">
-              <div className="bg-accent text-accent-foreground flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-xs font-semibold shadow-xs overflow-hidden p-1">
+              <div className="bg-accent text-accent-foreground flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-xs font-semibold shadow-xs overflow-hidden p-1">
                 {getEngineLogo(currentOption?.engine || engine, 'size-5') || (
                   <span>{currentOption?.label.slice(0, 2).toUpperCase() || 'TT'}</span>
                 )}
@@ -183,22 +183,29 @@ export function EngineModelSelector({ form, compact, selectedProfile }: EngineMo
       <DropdownMenuContent
         align="center"
         side={compact ? 'top' : undefined}
-        className="w-[280px] max-h-[360px] overflow-y-auto rounded-lg p-1.5 z-[9999]"
+        className="w-[280px] rounded-lg p-0 overflow-hidden flex flex-col z-[9999]"
       >
-        <div className="px-2 py-1.5">
-          <p className="text-xs font-semibold">TTS Engine & Model</p>
-          <p className="text-muted-foreground text-[10px]">
-            {getEngineDescription(engine) || 'Select speech synthesis engine'}
-          </p>
+        {/* Sticky pinned header that never scrolls or gets clipped */}
+        <div className="p-1.5 pb-0 bg-popover shrink-0">
+          <div className="px-2 py-1.5 flex items-center gap-2.5">
+            <div className="bg-primary/20 text-accent flex h-8 w-8 shrink-0 items-center justify-center rounded-lg shadow-xs">
+              <HiCpuChip className="size-4.5" />
+            </div>
+            <div className="flex flex-col min-w-0">
+              <p className="text-xs font-semibold leading-tight text-foreground">TTS Engine & Model</p>
+              <p className="text-muted-foreground text-[10px] leading-tight truncate mt-0.5">
+                {getEngineDescription(engine) || 'Select speech synthesis engine'}
+              </p>
+            </div>
+          </div>
+          <DropdownMenuSeparator />
+          <DropdownMenuLabel className="text-[11px] font-medium text-muted-foreground px-2 py-1">
+            Available Engines
+          </DropdownMenuLabel>
         </div>
 
-        <DropdownMenuSeparator />
-
-        <DropdownMenuLabel className="flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground px-2 py-1">
-          <HiCpuChip className="size-3.5" />
-          Available Engines
-        </DropdownMenuLabel>
-
+        {/* Scrollable list area below the pinned header */}
+        <div className="overflow-y-auto max-h-[260px] p-1.5 pt-0.5 space-y-0.5">
         {availableOptions.map((opt) => {
           const isSelected = opt.value === selectValue;
           return (
@@ -243,6 +250,7 @@ export function EngineModelSelector({ form, compact, selectedProfile }: EngineMo
             </DropdownMenuItem>
           );
         })}
+        </div>
       </DropdownMenuContent>
     </DropdownMenu>
   );

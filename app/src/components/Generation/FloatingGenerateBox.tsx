@@ -5,6 +5,7 @@ import { Dices, Loader2, SlidersHorizontal, Sparkles, Wand2 } from 'lucide-react
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { HiCheck } from 'react-icons/hi';
+import { getLanguageFlag } from './LanguageFlags';
 import { HiChevronUpDown, HiLanguage, HiSparkles } from 'react-icons/hi2';
 import { Button } from '@/components/ui/button';
 import {
@@ -606,11 +607,13 @@ export function FloatingGenerateBox({
                                 <Button
                                   type="button"
                                   variant="ghost"
-                                  className="h-11 text-xs bg-card border border-border rounded-full hover:bg-background/50 transition-all px-3 font-normal flex items-center justify-between w-full gap-2.5"
+                                  className="h-11 text-xs bg-card border border-border rounded-xl hover:bg-background/50 transition-all pl-2 pr-3 font-normal flex items-center justify-between w-full gap-2.5"
                                 >
                                   <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                                    <div className="bg-accent text-accent-foreground flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-xs font-semibold shadow-xs">
-                                      {field.value?.toUpperCase().slice(0, 2) || 'EN'}
+                                    <div className="bg-accent text-accent-foreground flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-xs font-semibold shadow-xs overflow-hidden p-0.5">
+                                      {getLanguageFlag(field.value, 'w-full h-full object-cover rounded-xs') || (
+                                        <span>{field.value?.toUpperCase().slice(0, 2) || 'EN'}</span>
+                                      )}
                                     </div>
                                     <div className="flex flex-col text-left leading-tight min-w-0 flex-1">
                                       <span className="text-xs font-semibold truncate text-foreground">
@@ -628,19 +631,26 @@ export function FloatingGenerateBox({
                             <DropdownMenuContent
                               align="center"
                               side="top"
-                              className="w-[240px] max-h-[320px] overflow-y-auto rounded-lg p-1.5 z-[9999]"
+                              className="w-[240px] rounded-lg p-0 overflow-hidden flex flex-col z-[9999]"
                             >
-                              <div className="px-2 py-1.5">
-                                <p className="text-xs font-semibold">Language</p>
-                                <p className="text-muted-foreground text-[10px]">
-                                  Select synthesis language
-                                </p>
+                              <div className="p-1.5 pb-0 bg-popover shrink-0">
+                                <div className="px-2 py-1.5 flex items-center gap-2.5">
+                                  <div className="bg-primary/20 text-accent flex h-8 w-8 shrink-0 items-center justify-center rounded-lg shadow-xs">
+                                    <HiLanguage className="size-4.5" />
+                                  </div>
+                                  <div className="flex flex-col min-w-0">
+                                    <p className="text-xs font-semibold leading-tight text-foreground">Language</p>
+                                    <p className="text-muted-foreground text-[10px] leading-tight truncate mt-0.5">
+                                      Select synthesis language
+                                    </p>
+                                  </div>
+                                </div>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuLabel className="text-[11px] font-medium text-muted-foreground px-2 py-1">
+                                  Supported Languages
+                                </DropdownMenuLabel>
                               </div>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuLabel className="flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground px-2 py-1">
-                                <HiLanguage className="size-3.5" />
-                                Supported Languages
-                              </DropdownMenuLabel>
+                              <div className="overflow-y-auto max-h-[240px] p-1.5 pt-0.5 space-y-0.5">
                               {engineLangs.map((lang) => {
                                 const isSelected = lang.value === field.value;
                                 return (
@@ -656,19 +666,22 @@ export function FloatingGenerateBox({
                                   >
                                     <div
                                       className={cn(
-                                        'flex h-6 w-6 shrink-0 items-center justify-center rounded text-[10px] font-semibold transition-colors',
+                                        'flex h-6 w-6 shrink-0 items-center justify-center rounded text-[10px] font-semibold transition-colors overflow-hidden p-0.5',
                                         isSelected
                                           ? 'bg-accent-foreground/20 text-accent-foreground'
-                                          : 'bg-muted text-muted-foreground group-hover:text-foreground group-focus:text-foreground'
+                                          : 'bg-muted/70 text-muted-foreground group-hover:bg-muted group-hover:text-foreground group-focus:text-foreground'
                                       )}
                                     >
-                                      {lang.value.toUpperCase().slice(0, 2)}
+                                      {getLanguageFlag(lang.value, 'w-full h-full object-cover rounded-xs shadow-xs') || (
+                                        <span>{lang.value.toUpperCase().slice(0, 2)}</span>
+                                      )}
                                     </div>
                                     <span className="flex-1 truncate">{lang.label}</span>
                                     {isSelected && <HiCheck className="size-3.5 shrink-0 ml-auto" />}
                                   </DropdownMenuItem>
                                 );
                               })}
+                              </div>
                             </DropdownMenuContent>
                           </DropdownMenu>
                           <FormMessage className="text-xs" />
@@ -697,10 +710,10 @@ export function FloatingGenerateBox({
                             <Button
                               type="button"
                               variant="ghost"
-                              className="h-11 text-xs bg-card border border-border rounded-full hover:bg-background/50 transition-all px-3 font-normal flex items-center justify-between w-full gap-2.5"
+                              className="h-11 text-xs bg-card border border-border rounded-xl hover:bg-background/50 transition-all pl-2 pr-3 font-normal flex items-center justify-between w-full gap-2.5"
                             >
                               <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                                <div className="bg-accent text-accent-foreground flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-xs font-semibold shadow-xs">
+                                <div className="bg-accent text-accent-foreground flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-xs font-semibold shadow-xs">
                                   <HiSparkles className="size-4" />
                                 </div>
                                 <div className="flex flex-col text-left leading-tight min-w-0 flex-1">
@@ -718,19 +731,26 @@ export function FloatingGenerateBox({
                           <DropdownMenuContent
                             align="center"
                             side="top"
-                            className="w-[240px] max-h-[320px] overflow-y-auto rounded-lg p-1.5 z-[9999]"
+                            className="w-[240px] rounded-lg p-0 overflow-hidden flex flex-col z-[9999]"
                           >
-                            <div className="px-2 py-1.5">
-                              <p className="text-xs font-semibold">Voice Effects</p>
-                              <p className="text-muted-foreground text-[10px]">
-                                Apply post-processing effects
-                              </p>
+                            <div className="p-1.5 pb-0 bg-popover shrink-0">
+                              <div className="px-2 py-1.5 flex items-center gap-2.5">
+                                <div className="bg-primary/20 text-accent flex h-8 w-8 shrink-0 items-center justify-center rounded-lg shadow-xs">
+                                  <HiSparkles className="size-4.5" />
+                                </div>
+                                <div className="flex flex-col min-w-0">
+                                  <p className="text-xs font-semibold leading-tight text-foreground">Voice Effects</p>
+                                  <p className="text-muted-foreground text-[10px] leading-tight truncate mt-0.5">
+                                    Apply post-processing effects
+                                  </p>
+                                </div>
+                              </div>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuLabel className="text-[11px] font-medium text-muted-foreground px-2 py-1">
+                                Presets
+                              </DropdownMenuLabel>
                             </div>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuLabel className="flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground px-2 py-1">
-                              <HiSparkles className="size-3.5" />
-                              Presets
-                            </DropdownMenuLabel>
+                            <div className="overflow-y-auto max-h-[240px] p-1.5 pt-0.5 space-y-0.5">
                             <DropdownMenuItem
                               onClick={() => setSelectedPresetId(null)}
                               className={cn(
@@ -807,6 +827,7 @@ export function FloatingGenerateBox({
                                 </DropdownMenuItem>
                               );
                             })}
+                            </div>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       );
