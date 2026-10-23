@@ -7,7 +7,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useProfiles } from '@/lib/hooks/useProfiles';
 import { useUIStore } from '@/stores/uiStore';
 import { ProfileCard } from './ProfileCard';
-import { ProfileForm } from './ProfileForm';
 
 export function ProfileList() {
   const { t } = useTranslation();
@@ -102,8 +101,6 @@ export function ProfileList() {
           </div>
         )}
       </div>
-
-      <ProfileForm />
     </div>
   );
 }

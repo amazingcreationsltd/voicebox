@@ -5,19 +5,15 @@ import { useTranslation } from 'react-i18next';
 
 import { EffectsChainEditor } from '@/components/Effects/EffectsChainEditor';
 import { GenerationPicker } from '@/components/Effects/GenerationPicker';
-import { Button } from '@/components/ui/button';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
-import { Textarea } from '@/components/ui/textarea';
+  Button as HeroButton,
+  Chip,
+  Input as HeroInput,
+  Label as HeroLabel,
+  Modal,
+  TextArea as HeroTextArea,
+  TextField as HeroTextField,
+} from '@heroui/react';
 import { useToast } from '@/components/ui/use-toast';
 import { apiClient } from '@/lib/api/client';
 import type { HistoryResponse } from '@/lib/api/types';
@@ -264,111 +260,153 @@ export function EffectsDetail() {
   }
 
   return (
-    <div className="flex flex-col h-full min-h-0">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold">
-          {isCreatingNew
-            ? t('effects.detail.newTitle')
-            : isBuiltIn
-              ? presetName
-              : t('effects.detail.editTitle')}
-        </h2>
+    <div className="flex flex-col h-full min-h-0 max-w-3xl w-full">
+      <div className="flex items-center justify-between pb-3.5 mb-4 border-b border-border/40">
+        <div className="flex items-center gap-2.5">
+          <h2 className="text-xl font-bold tracking-tight text-foreground">
+            {isCreatingNew
+              ? t('effects.detail.newTitle')
+              : isBuiltIn
+                ? presetName
+                : t('effects.detail.editTitle')}
+          </h2>
+          {isCreatingNew && (
+            <Chip size="sm" color="accent">
+              {t('effects.sections.new')}
+            </Chip>
+          )}
+          {isBuiltIn && (
+            <Chip size="sm">
+              {t('effects.badge.builtin')}
+            </Chip>
+          )}
+          {!isBuiltIn && !isCreatingNew && (
+            <Chip size="sm" color="success">
+              {t('effects.sections.custom')}
+            </Chip>
+          )}
+        </div>
         <div className="flex items-center gap-2">
           {!isBuiltIn && !isCreatingNew && (
             <>
-              <Button
+              <HeroButton
                 variant="ghost"
                 size="sm"
-                className="h-8 text-destructive  gap-1.5"
-                onClick={handleDelete}
-                disabled={deleting}
+                className="text-destructive gap-1.5"
+                onPress={handleDelete}
+                isDisabled={deleting}
               >
                 <Trash2 className="h-3.5 w-3.5" />
                 {deleting ? t('effects.detail.deleting') : t('common.delete')}
-              </Button>
-              <Button
+              </HeroButton>
+              <HeroButton
                 size="sm"
-                className="h-8 gap-1.5"
-                onClick={handleSaveExisting}
-                disabled={saving || workingChain.length === 0}
+                variant="primary"
+                className="gap-1.5"
+                onPress={handleSaveExisting}
+                isDisabled={saving || workingChain.length === 0}
               >
-                <Save className="h-3.5 w-3.5" />
+                {saving ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Save className="h-3.5 w-3.5" />
+                )}
                 {saving ? t('effects.detail.saving') : t('common.save')}
-              </Button>
+              </HeroButton>
             </>
           )}
           {isCreatingNew && (
-            <Button
+            <HeroButton
               size="sm"
-              className="h-8 gap-1.5"
-              onClick={handleSaveNew}
-              disabled={saving || workingChain.length === 0}
+              variant="primary"
+              className="gap-1.5"
+              onPress={handleSaveNew}
+              isDisabled={saving || workingChain.length === 0 || !name.trim()}
             >
-              <Save className="h-3.5 w-3.5" />
+              {saving ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Save className="h-3.5 w-3.5" />
+              )}
               {saving ? t('effects.detail.saving') : t('effects.detail.savePreset')}
-            </Button>
+            </HeroButton>
           )}
           {isBuiltIn && (
-            <Button
+            <HeroButton
               size="sm"
-              variant="outline"
-              className="h-8 gap-1.5"
-              onClick={handleSaveAsNew}
-              disabled={saving}
+              variant="secondary"
+              className="gap-1.5"
+              onPress={handleSaveAsNew}
+              isDisabled={saving}
             >
               <Save className="h-3.5 w-3.5" />
               {saving ? t('effects.detail.saving') : t('effects.detail.saveAsCustom')}
-            </Button>
+            </HeroButton>
           )}
         </div>
       </div>
 
-      <div className="flex-1 min-h-0 overflow-y-auto space-y-5 pr-1">
+      <div className="flex-1 min-h-0 overflow-y-auto space-y-5 pr-1.5">
         {(isCreatingNew || !isBuiltIn) && (
-          <div className="space-y-3">
-            <div className="space-y-1.5">
-              <Label className="text-xs">{t('effects.fields.name')}</Label>
-              <Input
+          <div className="rounded-2xl border border-border/50 bg-card/60 p-5 shadow-xs space-y-4">
+            <HeroTextField className="w-full">
+              <HeroLabel>{t('effects.fields.name')}</HeroLabel>
+              <HeroInput
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder={t('effects.fields.namePlaceholder')}
-                className="h-9"
               />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs">{t('effects.fields.description')}</Label>
-              <Textarea
+            </HeroTextField>
+            <HeroTextField className="w-full">
+              <HeroLabel>{t('effects.fields.description')}</HeroLabel>
+              <HeroTextArea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder={t('effects.fields.descriptionPlaceholder')}
-                className="min-h-[60px] resize-none"
+                rows={2}
               />
-            </div>
+            </HeroTextField>
           </div>
         )}
 
         {isBuiltIn && presetDescription && (
-          <p className="text-sm text-muted-foreground">{presetDescription}</p>
+          <div className="rounded-2xl border border-border/50 bg-card/60 p-4">
+            <p className="text-sm text-muted-foreground leading-relaxed">{presetDescription}</p>
+          </div>
         )}
 
-        <EffectsChainEditor value={workingChain} onChange={setWorkingChain} showPresets={false} />
+        <div className="rounded-2xl border border-border/50 bg-card/60 p-5 shadow-xs space-y-3">
+          <div className="flex items-center justify-between pb-1">
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              {t('effects.chain.title', { defaultValue: 'Effects Chain' })}
+            </span>
+            <span className="text-xs text-muted-foreground">
+              {t('effects.effectCount', { count: workingChain.length })}
+            </span>
+          </div>
+          <EffectsChainEditor value={workingChain} onChange={setWorkingChain} showPresets={false} />
+        </div>
 
-        <Separator />
-
-        <div className="space-y-3">
-          <Label className="text-xs">{t('effects.preview.label')}</Label>
+        {/* Preview section as clean dedicated deck */}
+        <div className="rounded-2xl border border-border/50 bg-card/60 p-5 shadow-xs space-y-3">
           <div className="flex items-center gap-2">
+            <Wand2 className="h-4 w-4 text-accent" />
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              {t('effects.preview.label')}
+            </span>
+          </div>
+          <div className="flex items-center gap-2.5">
             <GenerationPicker
               selectedId={previewGenId}
               onSelect={handleSelectGeneration}
               className="flex-1"
             />
-            <Button
-              variant="outline"
+            <HeroButton
+              variant="secondary"
               size="sm"
-              className="h-8 gap-1.5 shrink-0"
-              onClick={handlePreview}
-              disabled={!previewGenId || workingChain.length === 0 || previewLoading}
+              className="gap-1.5 shrink-0"
+              onPress={handlePreview}
+              isDisabled={!previewGenId || workingChain.length === 0 || previewLoading}
             >
               {previewLoading ? (
                 <>
@@ -381,55 +419,78 @@ export function EffectsDetail() {
                   {t('effects.preview.button')}
                 </>
               )}
-            </Button>
+            </HeroButton>
           </div>
-          <p className="text-[11px] text-muted-foreground">{t('effects.preview.hint')}</p>
+          <p className="text-xs text-muted-foreground/80">{t('effects.preview.hint')}</p>
         </div>
       </div>
 
-      <Dialog open={saveAsDialogOpen} onOpenChange={setSaveAsDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>{t('effects.saveAs.title')}</DialogTitle>
-            <DialogDescription>{t('effects.saveAs.description')}</DialogDescription>
-          </DialogHeader>
-          <div className="space-y-3 py-2">
-            <div className="space-y-1.5">
-              <Label className="text-xs">{t('effects.fields.name')}</Label>
-              <Input
-                value={saveAsName}
-                onChange={(e) => setSaveAsName(e.target.value)}
-                placeholder={t('effects.fields.namePlaceholder')}
-                className="h-9"
-                autoFocus
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && saveAsName.trim()) {
-                    handleSaveAsConfirm();
-                  }
-                }}
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs">{t('effects.fields.description')}</Label>
-              <Textarea
-                value={saveAsDescription}
-                onChange={(e) => setSaveAsDescription(e.target.value)}
-                placeholder={t('effects.fields.descriptionPlaceholder')}
-                className="min-h-[60px] resize-none"
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setSaveAsDialogOpen(false)} disabled={saving}>
-              {t('common.cancel')}
-            </Button>
-            <Button onClick={handleSaveAsConfirm} disabled={saving || !saveAsName.trim()}>
-              <Save className="h-3.5 w-3.5 mr-1.5" />
-              {saving ? t('effects.detail.saving') : t('common.save')}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* Save As Custom Modal */}
+      <Modal.Backdrop
+        isOpen={saveAsDialogOpen}
+        onOpenChange={setSaveAsDialogOpen}
+        variant="blur"
+      >
+        <Modal.Container size="sm">
+          <Modal.Dialog className="border border-border/50 bg-background/95 backdrop-blur-xl sm:max-w-md">
+            <Modal.CloseTrigger />
+            <Modal.Header className="gap-1.5 pr-8">
+              <Modal.Heading className="text-xl font-bold tracking-tight text-foreground">
+                {t('effects.saveAs.title')}
+              </Modal.Heading>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                {t('effects.saveAs.description')}
+              </p>
+            </Modal.Header>
+            <Modal.Body className="space-y-4 py-3">
+              <HeroTextField className="w-full">
+                <HeroLabel>{t('effects.fields.name')}</HeroLabel>
+                <HeroInput
+                  value={saveAsName}
+                  onChange={(e) => setSaveAsName(e.target.value)}
+                  placeholder={t('effects.fields.namePlaceholder')}
+                  autoFocus
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && saveAsName.trim()) {
+                      handleSaveAsConfirm();
+                    }
+                  }}
+                />
+              </HeroTextField>
+              <HeroTextField className="w-full">
+                <HeroLabel>{t('effects.fields.description')}</HeroLabel>
+                <HeroTextArea
+                  value={saveAsDescription}
+                  onChange={(e) => setSaveAsDescription(e.target.value)}
+                  placeholder={t('effects.fields.descriptionPlaceholder')}
+                  rows={2}
+                />
+              </HeroTextField>
+            </Modal.Body>
+            <Modal.Footer className="flex justify-end gap-2.5 pt-3">
+              <HeroButton
+                variant="secondary"
+                onPress={() => setSaveAsDialogOpen(false)}
+                isDisabled={saving}
+              >
+                {t('common.cancel')}
+              </HeroButton>
+              <HeroButton
+                variant="primary"
+                onPress={handleSaveAsConfirm}
+                isDisabled={saving || !saveAsName.trim()}
+              >
+                {saving ? (
+                  <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
+                ) : (
+                  <Save className="h-3.5 w-3.5 mr-1.5" />
+                )}
+                {saving ? t('effects.detail.saving') : t('common.save')}
+              </HeroButton>
+            </Modal.Footer>
+          </Modal.Dialog>
+        </Modal.Container>
+      </Modal.Backdrop>
     </div>
   );
 }

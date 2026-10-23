@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@tanstack/react-query';
-import { Edit2, Mic, Monitor, Music, Sparkles, Upload, X } from 'lucide-react';
+import { ArrowLeft, Edit2, Loader2, Mic, Monitor, Music, Sparkles, Upload, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -8,13 +8,6 @@ import * as z from 'zod';
 import { EffectsChainEditor } from '@/components/Effects/EffectsChainEditor';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
 import {
   Form,
   FormControl,
@@ -862,410 +855,506 @@ export function ProfileForm() {
     }
   }
 
+  if (!open) {
+    return null;
+  }
+
+  const isSubmitting =
+    createProfile.isPending || updateProfile.isPending || addSample.isPending;
+
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-none w-screen h-screen left-0 top-0 translate-x-0 translate-y-0 rounded-none p-6 overflow-hidden">
-        <div className="max-w-5xl h-[85vh] mx-auto my-auto w-full flex flex-col overflow-hidden">
-          <DialogHeader>
-            <DialogTitle className="text-2xl">
+    <div className="h-full w-full flex flex-col min-h-0 overflow-hidden py-2 animate-in fade-in-0 duration-200">
+      {/* Header bar */}
+      <div className="shrink-0 flex items-center justify-between pb-4 border-b border-border/60">
+        <div className="flex items-center gap-3 min-w-0">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => handleOpenChange(false)}
+            className="h-9 px-2.5 text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg gap-1.5 shrink-0"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            <span className="text-sm font-medium">{t('common.back') || 'Back'}</span>
+          </Button>
+
+          <div className="h-5 w-px bg-border/60 shrink-0" />
+
+          <div className="min-w-0">
+            <h1 className="text-xl font-bold tracking-tight text-foreground truncate flex items-center gap-2">
               {editingProfileId ? t('profileForm.editTitle') : t('profileForm.createTitle')}
-            </DialogTitle>
-            <DialogDescription>
+              {editingProfile?.name && (
+                <span className="text-sm font-normal text-muted-foreground truncate">
+                  ({editingProfile.name})
+                </span>
+              )}
+            </h1>
+            <p className="text-xs text-muted-foreground hidden sm:block truncate">
               {editingProfileId
                 ? t('profileForm.editDescription')
                 : t('profileForm.createDescription')}
-            </DialogDescription>
-            {isCreating && profileFormDraft && (
-              <div className="flex items-center gap-2 pt-2">
-                <span className="text-xs text-muted-foreground">
-                  {t('profileForm.draftRestored')}
-                </span>
-                <Button
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 shrink-0">
+          {isCreating && profileFormDraft && (
+            <div className="hidden md:flex items-center gap-2 mr-1 bg-muted/40 px-2.5 py-1 rounded-lg border border-border/50">
+              <span className="text-xs text-muted-foreground">
+                {t('profileForm.draftRestored')}
+              </span>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-5 px-1.5 text-xs text-muted-foreground hover:text-destructive"
+                onClick={() => {
+                  setProfileFormDraft(null);
+                  form.reset({
+                    name: '',
+                    description: '',
+                    language: 'en',
+                    personality: '',
+                    sampleFile: undefined,
+                    referenceText: '',
+                    avatarFile: undefined,
+                  });
+                  setSampleMode('record');
+                  setDesignPrompt('');
+                }}
+              >
+                <X className="h-3 w-3 mr-1" />
+                {t('profileForm.discard')}
+              </Button>
+            </div>
+          )}
+
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => handleOpenChange(false)}
+            className="rounded-xl h-9"
+          >
+            {t('common.cancel')}
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            disabled={isSubmitting}
+            onClick={form.handleSubmit(onSubmit)}
+            className="rounded-xl h-9 min-w-[120px] font-semibold"
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                {t('profileForm.actions.saving')}
+              </>
+            ) : editingProfileId ? (
+              t('profileForm.actions.saveChanges')
+            ) : (
+              t('profileForm.actions.createProfile')
+            )}
+          </Button>
+        </div>
+      </div>
+
+      {/* Main scrollable form container */}
+      <div className="flex-1 min-h-0 overflow-y-auto pt-6 pb-16 pr-1 scrollbar">
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="max-w-6xl mx-auto space-y-6">
+            {/* Mode selection if creating */}
+            {isCreating && (
+              <div className="rounded-2xl border border-border/80 bg-surface/40 p-1.5 flex flex-wrap sm:flex-nowrap gap-1.5 shadow-xs">
+                <button
                   type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="h-6 px-2 text-xs text-muted-foreground"
-                  onClick={() => {
-                    setProfileFormDraft(null);
-                    form.reset({
-                      name: '',
-                      description: '',
-                      language: 'en',
-                      personality: '',
-                      sampleFile: undefined,
-                      referenceText: '',
-                      avatarFile: undefined,
-                    });
-                    setSampleMode('record');
-                    setDesignPrompt('');
-                  }}
+                  onClick={() => setVoiceSource('clone')}
+                  className={`flex-1 flex items-center justify-center gap-2.5 py-2.5 px-4 rounded-xl text-sm font-medium transition-all duration-150 ${
+                    voiceSource === 'clone'
+                      ? 'bg-accent text-accent-foreground shadow-sm'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/40'
+                  }`}
                 >
-                  <X className="h-3 w-3 mr-1" />
-                  {t('profileForm.discard')}
-                </Button>
+                  <Mic className="h-4 w-4 shrink-0" />
+                  <span>{t('profileForm.source.clone')}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setVoiceSource('builtin')}
+                  className={`flex-1 flex items-center justify-center gap-2.5 py-2.5 px-4 rounded-xl text-sm font-medium transition-all duration-150 ${
+                    voiceSource === 'builtin'
+                      ? 'bg-accent text-accent-foreground shadow-sm'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/40'
+                  }`}
+                >
+                  <Music className="h-4 w-4 shrink-0" />
+                  <span>{t('profileForm.source.builtin')}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setVoiceSource('design')}
+                  className={`flex-1 flex items-center justify-center gap-2.5 py-2.5 px-4 rounded-xl text-sm font-medium transition-all duration-150 ${
+                    voiceSource === 'design'
+                      ? 'bg-accent text-accent-foreground shadow-sm'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/40'
+                  }`}
+                >
+                  <Sparkles className="h-4 w-4 shrink-0" />
+                  <span>{t('profileForm.source.design')}</span>
+                </button>
               </div>
             )}
-          </DialogHeader>
 
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="flex-1 min-h-0 flex flex-col">
-              <div className="grid gap-6 grid-cols-2 flex-1 min-h-0 overflow-hidden">
-                {/* Left column: Sample management */}
-                <div className="space-y-4 border-r pr-6 overflow-y-auto min-h-0">
-                  {isCreating ? (
-                    <>
-                      {/* Voice source selector */}
-                      <div className="flex pt-4 pb-2">
-                        <div className="inline-flex rounded-lg border border-border p-0.5 bg-muted/50">
-                          <button
-                            type="button"
-                            onClick={() => setVoiceSource('clone')}
-                            className={`inline-flex items-center gap-2 px-3 py-1.5 text-sm rounded-md transition-colors ${
-                              voiceSource === 'clone'
-                                ? 'bg-accent text-accent-foreground shadow-sm'
-                                : 'text-muted-foreground hover:text-foreground'
-                            }`}
-                          >
-                            <Mic className="h-3.5 w-3.5" />
-                            {t('profileForm.source.clone')}
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setVoiceSource('builtin')}
-                            className={`inline-flex items-center gap-2 px-3 py-1.5 text-sm rounded-md transition-colors ${
-                              voiceSource === 'builtin'
-                                ? 'bg-accent text-accent-foreground shadow-sm'
-                                : 'text-muted-foreground hover:text-foreground'
-                            }`}
-                          >
-                            <Music className="h-3.5 w-3.5" />
-                            {t('profileForm.source.builtin')}
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setVoiceSource('design')}
-                            className={`inline-flex items-center gap-2 px-3 py-1.5 text-sm rounded-md transition-colors ${
-                              voiceSource === 'design'
-                                ? 'bg-accent text-accent-foreground shadow-sm'
-                                : 'text-muted-foreground hover:text-foreground'
-                            }`}
-                          >
-                            <Sparkles className="h-3.5 w-3.5" />
-                            {t('profileForm.source.design')}
-                          </button>
-                        </div>
-                      </div>
+            {/* Two-Column Responsive Layout */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+              {/* Left Column: Voice Source / Audio Sample Configuration */}
+              <div className="lg:col-span-6 rounded-2xl border border-border/80 bg-card/60 p-5 sm:p-6 shadow-xs space-y-5">
+                <div className="pb-3 border-b border-border/50">
+                  <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                    {voiceSource === 'design' ? (
+                      <>
+                        <Sparkles className="h-4 w-4 text-accent" />
+                        {t('profileForm.fields.designPrompt')}
+                      </>
+                    ) : voiceSource === 'builtin' ? (
+                      <>
+                        <Music className="h-4 w-4 text-accent" />
+                        {t('profileForm.source.builtin')}
+                      </>
+                    ) : (
+                      <>
+                        <Mic className="h-4 w-4 text-accent" />
+                        {editingProfileId
+                          ? t('profileForm.editDescription')
+                          : t('profileForm.sampleTabs.upload')}
+                      </>
+                    )}
+                  </h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {voiceSource === 'design'
+                      ? t('profileForm.design.hint')
+                      : voiceSource === 'builtin'
+                        ? t('profileForm.builtin.hint')
+                        : 'Provide audio sample data and transcription for voice synthesis.'}
+                  </p>
+                </div>
 
-                      {voiceSource === 'design' ? (
-                        <div className="space-y-4">
-                          <FormDescription>{t('profileForm.design.hint')}</FormDescription>
-
-                          <FormItem>
-                            <FormLabel>{t('profileForm.fields.designPrompt')}</FormLabel>
-                            <FormControl>
-                              <Textarea
-                                value={designPrompt}
-                                onChange={(e) => setDesignPrompt(e.target.value)}
-                                placeholder={t('profileForm.design.placeholder')}
-                                maxLength={MAX_DESIGN_PROMPT_LENGTH}
-                                rows={6}
-                                className="resize-none"
-                              />
-                            </FormControl>
-                            <div className="flex justify-between">
-                              <p className="text-xs text-muted-foreground">
-                                {t('profileForm.design.engineNote')}
-                              </p>
-                              <p className="text-xs text-muted-foreground tabular-nums">
-                                {designPrompt.length}/{MAX_DESIGN_PROMPT_LENGTH}
-                              </p>
-                            </div>
-                          </FormItem>
-                        </div>
-                      ) : voiceSource === 'builtin' ? (
-                        <div className="space-y-4">
-                          <FormDescription>{t('profileForm.builtin.hint')}</FormDescription>
-
-                          <FormItem>
-                            <FormLabel>{t('profileForm.fields.engine')}</FormLabel>
-                            <Select
-                              value={selectedPresetEngine}
-                              onValueChange={setSelectedPresetEngine}
-                            >
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                <SelectItem value="kokoro">Kokoro 82M</SelectItem>
-                                <SelectItem value="qwen_custom_voice">Qwen CustomVoice</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </FormItem>
-
-                          {/* Voice picker */}
-                          <FormItem>
-                            <FormLabel>{t('profileForm.fields.voice')}</FormLabel>
-                            <div className="grid grid-cols-2 gap-1.5 max-h-[340px] overflow-y-auto pr-1">
-                              {presetVoices.map((voice: PresetVoice) => (
-                                <button
-                                  key={voice.voice_id}
-                                  type="button"
-                                  onClick={() => {
-                                    setSelectedPresetVoiceId(voice.voice_id);
-                                    // Auto-set language from voice
-                                    if (voice.language) {
-                                      form.setValue('language', voice.language as LanguageCode);
-                                    }
-                                  }}
-                                  className={`text-left px-3 py-2 rounded-md border text-sm transition-colors ${
-                                    selectedPresetVoiceId === voice.voice_id
-                                      ? 'border-accent bg-accent/10 text-accent-foreground'
-                                      : 'border-border hover:bg-muted'
-                                  }`}
-                                >
-                                  <div className="font-medium">{voice.name}</div>
-                                  <div className="flex gap-1.5 mt-0.5">
-                                    <Badge variant="outline" className="text-[10px] h-4 px-1">
-                                      {voice.gender}
-                                    </Badge>
-                                    <Badge variant="outline" className="text-[10px] h-4 px-1">
-                                      {voice.language}
-                                    </Badge>
-                                  </div>
-                                </button>
-                              ))}
-                            </div>
-                          </FormItem>
-                        </div>
-                      ) : (
-                        <>
-                          <Tabs
-                            className="pt-0"
-                            value={sampleMode}
-                            onValueChange={(v) => {
-                              const newMode = v as 'upload' | 'record' | 'system';
-                              // Cancel any active recordings when switching modes
-                              if (isRecording && newMode !== 'record') {
-                                cancelRecording();
-                              }
-                              if (isSystemRecording && newMode !== 'system') {
-                                cancelSystemRecording();
-                              }
-                              setSampleMode(newMode);
-                            }}
-                          >
-                            <TabsList
-                              className={`grid w-full ${platform.metadata.isTauri && isSystemAudioSupported ? 'grid-cols-3' : 'grid-cols-2'}`}
-                            >
-                              <TabsTrigger value="upload" className="flex items-center gap-2">
-                                <Upload className="h-4 w-4 shrink-0" />
-                                {t('profileForm.sampleTabs.upload')}
-                              </TabsTrigger>
-                              <TabsTrigger value="record" className="flex items-center gap-2">
-                                <Mic className="h-4 w-4 shrink-0" />
-                                {t('profileForm.sampleTabs.record')}
-                              </TabsTrigger>
-                              {platform.metadata.isTauri && isSystemAudioSupported && (
-                                <TabsTrigger value="system" className="flex items-center gap-2">
-                                  <Monitor className="h-4 w-4 shrink-0" />
-                                  {t('profileForm.sampleTabs.system')}
-                                </TabsTrigger>
-                              )}
-                            </TabsList>
-
-                            <TabsContent value="upload" className="space-y-4">
-                              <FormField
-                                control={form.control}
-                                name="sampleFile"
-                                render={({ field: { onChange, name } }) => (
-                                  <AudioSampleUpload
-                                    file={selectedFile}
-                                    onFileChange={onChange}
-                                    onTranscribe={handleTranscribe}
-                                    onPlayPause={handlePlayPause}
-                                    isPlaying={isPlaying}
-                                    isValidating={isValidatingAudio}
-                                    isTranscribing={transcribe.isPending}
-                                    isDisabled={
-                                      audioDuration !== null &&
-                                      audioDuration > MAX_AUDIO_DURATION_SECONDS
-                                    }
-                                    fieldName={name}
-                                  />
-                                )}
-                              />
-                            </TabsContent>
-
-                            <TabsContent value="record" className="space-y-4">
-                              <FormField
-                                control={form.control}
-                                name="sampleFile"
-                                render={() => (
-                                  <AudioSampleRecording
-                                    file={selectedFile}
-                                    isRecording={isRecording}
-                                    duration={duration}
-                                    onStart={startRecording}
-                                    onStop={stopRecording}
-                                    onCancel={handleCancelRecording}
-                                    onTranscribe={handleTranscribe}
-                                    onPlayPause={handlePlayPause}
-                                    isPlaying={isPlaying}
-                                    isTranscribing={transcribe.isPending}
-                                  />
-                                )}
-                              />
-                            </TabsContent>
-
-                            {platform.metadata.isTauri && isSystemAudioSupported && (
-                              <TabsContent value="system" className="space-y-4">
-                                <FormField
-                                  control={form.control}
-                                  name="sampleFile"
-                                  render={() => (
-                                    <AudioSampleSystem
-                                      file={selectedFile}
-                                      isRecording={isSystemRecording}
-                                      duration={systemDuration}
-                                      onStart={startSystemRecording}
-                                      onStop={stopSystemRecording}
-                                      onCancel={handleCancelRecording}
-                                      onTranscribe={handleTranscribe}
-                                      onPlayPause={handlePlayPause}
-                                      isPlaying={isPlaying}
-                                      isTranscribing={transcribe.isPending}
-                                    />
-                                  )}
-                                />
-                              </TabsContent>
-                            )}
-                          </Tabs>
-
-                          <FormField
-                            control={form.control}
-                            name="referenceText"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>{t('profileForm.fields.referenceText')}</FormLabel>
-                                <FormControl>
-                                  <Textarea
-                                    placeholder={t('profileForm.fields.referenceTextPlaceholder')}
-                                    className="min-h-[100px]"
-                                    {...field}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
+                {isCreating ? (
+                  voiceSource === 'design' ? (
+                    <div className="space-y-4">
+                      <FormItem>
+                        <FormLabel>{t('profileForm.fields.designPrompt')}</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            value={designPrompt}
+                            onChange={(e) => setDesignPrompt(e.target.value)}
+                            placeholder={t('profileForm.design.placeholder')}
+                            maxLength={MAX_DESIGN_PROMPT_LENGTH}
+                            rows={8}
+                            className="resize-none"
                           />
-                        </>
-                      )}
-                    </>
-                  ) : (
-                    // Editing mode
-                    editingProfileId &&
-                    editingProfile &&
-                    (editingProfile.voice_type === 'preset' ? (
-                      <div className="space-y-4 pt-4">
-                        <div className="rounded-lg border border-border p-4 space-y-3">
-                          <div className="text-sm font-medium text-muted-foreground">
-                            {t('profileForm.builtin.badge')}
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <div className="text-lg font-semibold">
-                              {presetVoices.find(
-                                (v: PresetVoice) => v.voice_id === editingProfile.preset_voice_id,
-                              )?.name ?? editingProfile.preset_voice_id}
-                            </div>
-                            <Badge variant="secondary" className="text-xs">
-                              {editingProfile.preset_engine}
-                            </Badge>
-                          </div>
-                          {(() => {
-                            const voice = presetVoices.find(
-                              (v: PresetVoice) => v.voice_id === editingProfile.preset_voice_id,
-                            );
-                            return voice ? (
-                              <div className="flex gap-1.5">
-                                <Badge variant="outline" className="text-xs">
+                        </FormControl>
+                        <div className="flex justify-between items-center pt-1">
+                          <p className="text-xs text-muted-foreground">
+                            {t('profileForm.design.engineNote')}
+                          </p>
+                          <p className="text-xs text-muted-foreground tabular-nums font-mono">
+                            {designPrompt.length}/{MAX_DESIGN_PROMPT_LENGTH}
+                          </p>
+                        </div>
+                      </FormItem>
+                    </div>
+                  ) : voiceSource === 'builtin' ? (
+                    <div className="space-y-4">
+                      <FormItem>
+                        <FormLabel>{t('profileForm.fields.engine')}</FormLabel>
+                        <Select
+                          value={selectedPresetEngine}
+                          onValueChange={setSelectedPresetEngine}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="kokoro">Kokoro 82M</SelectItem>
+                            <SelectItem value="qwen_custom_voice">Qwen CustomVoice</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormItem>
+
+                      {/* Voice picker */}
+                      <FormItem>
+                        <FormLabel>{t('profileForm.fields.voice')}</FormLabel>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[340px] overflow-y-auto pr-1 scrollbar">
+                          {presetVoices.map((voice: PresetVoice) => (
+                            <button
+                              key={voice.voice_id}
+                              type="button"
+                              onClick={() => {
+                                setSelectedPresetVoiceId(voice.voice_id);
+                                if (voice.language) {
+                                  form.setValue('language', voice.language as LanguageCode);
+                                }
+                              }}
+                              className={`text-left p-3 rounded-xl border text-sm transition-all duration-150 ${
+                                selectedPresetVoiceId === voice.voice_id
+                                  ? 'border-accent bg-accent/10 text-accent-foreground shadow-xs'
+                                  : 'border-border/70 hover:bg-muted/40 hover:border-border'
+                              }`}
+                            >
+                              <div className="font-semibold text-foreground">{voice.name}</div>
+                              <div className="flex gap-1.5 mt-1.5">
+                                <Badge variant="outline" className="text-[10px] h-4 px-1.5">
                                   {voice.gender}
                                 </Badge>
-                                <Badge variant="outline" className="text-xs">
+                                <Badge variant="outline" className="text-[10px] h-4 px-1.5">
                                   {voice.language}
                                 </Badge>
                               </div>
-                            ) : null;
-                          })()}
+                            </button>
+                          ))}
                         </div>
-                        <p className="text-xs text-muted-foreground">
-                          {t('profileForm.builtin.note')}
-                        </p>
-                      </div>
-                    ) : editingProfile.voice_type === 'designed' ? (
-                      <div className="space-y-4 pt-4">
-                        <div className="rounded-lg border border-border p-4 space-y-3">
-                          <div className="text-sm font-medium text-muted-foreground">
-                            {t('profileForm.design.badge')}
+                      </FormItem>
+                    </div>
+                  ) : (
+                    <div className="space-y-5">
+                      <Tabs
+                        className="pt-0"
+                        value={sampleMode}
+                        onValueChange={(v) => {
+                          const newMode = v as 'upload' | 'record' | 'system';
+                          if (isRecording && newMode !== 'record') {
+                            cancelRecording();
+                          }
+                          if (isSystemRecording && newMode !== 'system') {
+                            cancelSystemRecording();
+                          }
+                          setSampleMode(newMode);
+                        }}
+                      >
+                        <TabsList
+                          className={`grid w-full ${platform.metadata.isTauri && isSystemAudioSupported ? 'grid-cols-3' : 'grid-cols-2'}`}
+                        >
+                          <TabsTrigger value="upload" className="flex items-center gap-2">
+                            <Upload className="h-4 w-4 shrink-0" />
+                            {t('profileForm.sampleTabs.upload')}
+                          </TabsTrigger>
+                          <TabsTrigger value="record" className="flex items-center gap-2">
+                            <Mic className="h-4 w-4 shrink-0" />
+                            {t('profileForm.sampleTabs.record')}
+                          </TabsTrigger>
+                          {platform.metadata.isTauri && isSystemAudioSupported && (
+                            <TabsTrigger value="system" className="flex items-center gap-2">
+                              <Monitor className="h-4 w-4 shrink-0" />
+                              {t('profileForm.sampleTabs.system')}
+                            </TabsTrigger>
+                          )}
+                        </TabsList>
+
+                        <TabsContent value="upload" className="pt-4 space-y-4">
+                          <FormField
+                            control={form.control}
+                            name="sampleFile"
+                            render={({ field: { onChange, name } }) => (
+                              <AudioSampleUpload
+                                file={selectedFile}
+                                onFileChange={onChange}
+                                onTranscribe={handleTranscribe}
+                                onPlayPause={handlePlayPause}
+                                isPlaying={isPlaying}
+                                isValidating={isValidatingAudio}
+                                isTranscribing={transcribe.isPending}
+                                isDisabled={
+                                  audioDuration !== null &&
+                                  audioDuration > MAX_AUDIO_DURATION_SECONDS
+                                }
+                                fieldName={name}
+                              />
+                            )}
+                          />
+                        </TabsContent>
+
+                        <TabsContent value="record" className="pt-4 space-y-4">
+                          <FormField
+                            control={form.control}
+                            name="sampleFile"
+                            render={() => (
+                              <AudioSampleRecording
+                                file={selectedFile}
+                                isRecording={isRecording}
+                                duration={duration}
+                                onStart={startRecording}
+                                onStop={stopRecording}
+                                onCancel={handleCancelRecording}
+                                onTranscribe={handleTranscribe}
+                                onPlayPause={handlePlayPause}
+                                isPlaying={isPlaying}
+                                isTranscribing={transcribe.isPending}
+                              />
+                            )}
+                          />
+                        </TabsContent>
+
+                        {platform.metadata.isTauri && isSystemAudioSupported && (
+                          <TabsContent value="system" className="pt-4 space-y-4">
+                            <FormField
+                              control={form.control}
+                              name="sampleFile"
+                              render={() => (
+                                <AudioSampleSystem
+                                  file={selectedFile}
+                                  isRecording={isSystemRecording}
+                                  duration={systemDuration}
+                                  onStart={startSystemRecording}
+                                  onStop={stopSystemRecording}
+                                  onCancel={handleCancelRecording}
+                                  onTranscribe={handleTranscribe}
+                                  onPlayPause={handlePlayPause}
+                                  isPlaying={isPlaying}
+                                  isTranscribing={transcribe.isPending}
+                                />
+                              )}
+                            />
+                          </TabsContent>
+                        )}
+                      </Tabs>
+
+                      <FormField
+                        control={form.control}
+                        name="referenceText"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>{t('profileForm.fields.referenceText')}</FormLabel>
+                            <FormControl>
+                              <Textarea
+                                placeholder={t('profileForm.fields.referenceTextPlaceholder')}
+                                className="min-h-[110px]"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormDescription>
+                              Enter the exact reference text spoken in the audio for optimal voice cloning.
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  )
+                ) : (
+                  // Editing mode
+                  editingProfileId &&
+                  editingProfile &&
+                  (editingProfile.voice_type === 'preset' ? (
+                    <div className="space-y-4">
+                      <div className="rounded-xl border border-border/80 bg-surface/40 p-4 space-y-3 shadow-xs">
+                        <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                          {t('profileForm.builtin.badge')}
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <div className="text-base font-bold text-foreground">
+                            {presetVoices.find(
+                              (v: PresetVoice) => v.voice_id === editingProfile.preset_voice_id,
+                            )?.name ?? editingProfile.preset_voice_id}
                           </div>
-                          <p className="text-sm leading-relaxed">{editingProfile.design_prompt}</p>
                           <Badge variant="secondary" className="text-xs">
-                            {editingProfile.default_engine}
+                            {editingProfile.preset_engine}
                           </Badge>
                         </div>
-                        <p className="text-xs text-muted-foreground">
-                          {t('profileForm.design.note')}
-                        </p>
+                        {(() => {
+                          const voice = presetVoices.find(
+                            (v: PresetVoice) => v.voice_id === editingProfile.preset_voice_id,
+                          );
+                          return voice ? (
+                            <div className="flex gap-1.5 pt-1">
+                              <Badge variant="outline" className="text-xs">
+                                {voice.gender}
+                              </Badge>
+                              <Badge variant="outline" className="text-xs">
+                                {voice.language}
+                              </Badge>
+                            </div>
+                          ) : null;
+                        })()}
                       </div>
-                    ) : (
-                      <div>
-                        <SampleList profileId={editingProfileId} />
+                      <p className="text-xs text-muted-foreground">
+                        {t('profileForm.builtin.note')}
+                      </p>
+                    </div>
+                  ) : editingProfile.voice_type === 'designed' ? (
+                    <div className="space-y-4">
+                      <div className="rounded-xl border border-border/80 bg-surface/40 p-4 space-y-3 shadow-xs">
+                        <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                          {t('profileForm.design.badge')}
+                        </div>
+                        <p className="text-sm leading-relaxed text-foreground">{editingProfile.design_prompt}</p>
+                        <Badge variant="secondary" className="text-xs">
+                          {editingProfile.default_engine}
+                        </Badge>
                       </div>
-                    ))
-                  )}
+                      <p className="text-xs text-muted-foreground">
+                        {t('profileForm.design.note')}
+                      </p>
+                    </div>
+                  ) : (
+                    <div>
+                      <SampleList profileId={editingProfileId} />
+                    </div>
+                  ))
+                )}
+              </div>
+
+              {/* Right Column: Profile Identity & Parameters */}
+              <div className="lg:col-span-6 rounded-2xl border border-border/80 bg-card/60 p-5 sm:p-6 shadow-xs space-y-5">
+                <div className="pb-3 border-b border-border/50">
+                  <h3 className="text-sm font-semibold text-foreground">
+                    Profile Identity & Settings
+                  </h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Configure your voice name, description, personality, and default speech engine.
+                  </p>
                 </div>
 
-                {/* Right column: Profile info */}
-                <div className="space-y-4 overflow-y-auto min-h-0">
-                  {/* Avatar Upload */}
-                  <FormField
-                    control={form.control}
-                    name="avatarFile"
-                    render={() => (
-                      <FormItem>
-                        <FormControl>
-                          <div className="flex justify-center pt-4 pb-2">
-                            <div className="relative group">
-                              <div className="h-24 w-24 rounded-full bg-muted flex items-center justify-center shrink-0 overflow-hidden border-2 border-border">
-                                {avatarPreview ? (
-                                  <img
-                                    src={avatarPreview}
-                                    alt={t('profileForm.avatar.alt')}
-                                    className="h-full w-full object-cover"
-                                  />
-                                ) : (
-                                  <Mic className="h-10 w-10 text-muted-foreground" />
-                                )}
-                              </div>
-                              <button
-                                type="button"
-                                onClick={() => avatarInputRef.current?.click()}
-                                className="absolute inset-0 rounded-full bg-accent/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer"
-                              >
-                                <Edit2 className="h-6 w-6 text-accent-foreground" />
-                              </button>
-                              {(avatarPreview || editingProfile?.avatar_path) && (
-                                <button
-                                  type="button"
-                                  onClick={handleRemoveAvatar}
-                                  disabled={deleteAvatar.isPending}
-                                  className="absolute bottom-0 right-0 h-6 w-6 rounded-full bg-background/60 backdrop-blur-sm text-muted-foreground flex items-center justify-center hover:bg-background/80 hover:text-foreground transition-colors shadow-sm border border-border/50"
-                                >
-                                  <X className="h-3.5 w-3.5" />
-                                </button>
+                {/* Avatar Upload Banner */}
+                <FormField
+                  control={form.control}
+                  name="avatarFile"
+                  render={() => (
+                    <FormItem>
+                      <FormControl>
+                        <div className="flex flex-col sm:flex-row items-center gap-4 p-3.5 rounded-xl border border-border/70 bg-surface/30">
+                          <div className="relative group shrink-0">
+                            <div className="h-18 w-18 rounded-full bg-muted flex items-center justify-center overflow-hidden border-2 border-border/80 shadow-xs">
+                              {avatarPreview ? (
+                                <img
+                                  src={avatarPreview}
+                                  alt={t('profileForm.avatar.alt')}
+                                  className="h-full w-full object-cover"
+                                />
+                              ) : (
+                                <Mic className="h-7 w-7 text-muted-foreground" />
                               )}
                             </div>
+                            <button
+                              type="button"
+                              onClick={() => avatarInputRef.current?.click()}
+                              className="absolute inset-0 rounded-full bg-accent/70 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer text-accent-foreground shadow-sm"
+                              title={t('profileForm.avatar.alt')}
+                            >
+                              <Edit2 className="h-5 w-5" />
+                            </button>
+                            {(avatarPreview || editingProfile?.avatar_path) && (
+                              <button
+                                type="button"
+                                onClick={handleRemoveAvatar}
+                                disabled={deleteAvatar.isPending}
+                                className="absolute -bottom-1 -right-1 h-5 w-5 rounded-full bg-background border border-border text-muted-foreground flex items-center justify-center hover:text-destructive hover:border-destructive shadow-xs transition-colors"
+                              >
+                                <X className="h-3 w-3" />
+                              </button>
+                            )}
                             <input
                               ref={avatarInputRef}
                               type="file"
@@ -1274,62 +1363,74 @@ export function ProfileForm() {
                               className="hidden"
                             />
                           </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
 
-                  <FormField
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{t('profileForm.fields.name')}</FormLabel>
-                        <FormControl>
-                          <Input placeholder={t('profileForm.fields.namePlaceholder')} {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                          <div className="flex-1 text-center sm:text-left space-y-0.5">
+                            <div className="text-sm font-medium text-foreground">
+                              {t('profileForm.fields.avatar')}
+                            </div>
+                            <p className="text-xs text-muted-foreground">
+                              Click on the avatar to upload a custom image (PNG, JPEG, WebP, max 5MB).
+                            </p>
+                          </div>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-                  <FormField
-                    control={form.control}
-                    name="description"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{t('profileForm.fields.descriptionLabel')}</FormLabel>
-                        <FormControl>
-                          <Textarea
-                            placeholder={t('profileForm.fields.descriptionPlaceholder')}
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t('profileForm.fields.name')}</FormLabel>
+                      <FormControl>
+                        <Input placeholder={t('profileForm.fields.namePlaceholder')} {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-                  <FormField
-                    control={form.control}
-                    name="personality"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{t('profileForm.fields.personalityLabel')}</FormLabel>
-                        <FormControl>
-                          <Textarea
-                            placeholder={t('profileForm.fields.personalityPlaceholder')}
-                            className="min-h-[96px]"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormDescription>{t('profileForm.fields.personalityHint')}</FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t('profileForm.fields.descriptionLabel')}</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder={t('profileForm.fields.descriptionPlaceholder')}
+                          rows={2}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
+                <FormField
+                  control={form.control}
+                  name="personality"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t('profileForm.fields.personalityLabel')}</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder={t('profileForm.fields.personalityPlaceholder')}
+                          rows={3}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>{t('profileForm.fields.personalityHint')}</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
                     name="language"
@@ -1389,47 +1490,57 @@ export function ProfileForm() {
                       {t('profileForm.fields.defaultEngineHint')}
                     </FormDescription>
                   </FormItem>
-
-                  {editingProfileId && (
-                    <div className="space-y-2">
-                      <FormLabel>{t('profileForm.fields.defaultEffects')}</FormLabel>
-                      <p className="text-xs text-muted-foreground">
-                        {t('profileForm.fields.defaultEffectsHint')}
-                      </p>
-                      <EffectsChainEditor
-                        value={profileEffectsChain}
-                        onChange={(chain) => {
-                          setProfileEffectsChain(chain);
-                          setEffectsDirty(true);
-                        }}
-                        compact
-                      />
-                    </div>
-                  )}
                 </div>
-              </div>
 
-              <div className="flex gap-2 justify-end mt-6 pt-4 border-t">
-                <Button type="button" variant="outline" onClick={() => handleOpenChange(false)}>
-                  {t('common.cancel')}
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={
-                    createProfile.isPending || updateProfile.isPending || addSample.isPending
-                  }
-                >
-                  {createProfile.isPending || updateProfile.isPending || addSample.isPending
-                    ? t('profileForm.actions.saving')
-                    : editingProfileId
-                      ? t('profileForm.actions.saveChanges')
-                      : t('profileForm.actions.createProfile')}
-                </Button>
+                {editingProfileId && (
+                  <div className="space-y-2 pt-2 border-t border-border/50">
+                    <FormLabel>{t('profileForm.fields.defaultEffects')}</FormLabel>
+                    <p className="text-xs text-muted-foreground">
+                      {t('profileForm.fields.defaultEffectsHint')}
+                    </p>
+                    <EffectsChainEditor
+                      value={profileEffectsChain}
+                      onChange={(chain) => {
+                        setProfileEffectsChain(chain);
+                        setEffectsDirty(true);
+                      }}
+                      compact
+                    />
+                  </div>
+                )}
               </div>
-            </form>
-          </Form>
-        </div>
-      </DialogContent>
-    </Dialog>
+            </div>
+
+            {/* Bottom Actions Footer */}
+            <div className="flex items-center justify-end gap-3 pt-4 border-t border-border/60">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => handleOpenChange(false)}
+                className="rounded-xl h-10 px-5"
+              >
+                {t('common.cancel')}
+              </Button>
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="rounded-xl h-10 px-6 font-semibold"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    {t('profileForm.actions.saving')}
+                  </>
+                ) : editingProfileId ? (
+                  t('profileForm.actions.saveChanges')
+                ) : (
+                  t('profileForm.actions.createProfile')
+                )}
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </div>
+    </div>
   );
 }

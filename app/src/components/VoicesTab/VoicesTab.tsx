@@ -30,6 +30,7 @@ export function VoicesTab() {
   const { data: profiles, isLoading } = useProfiles();
   const queryClient = useQueryClient();
   const setDialogOpen = useUIStore((state) => state.setProfileDialogOpen);
+  const isProfileDialogOpen = useUIStore((state) => state.profileDialogOpen);
   const selectedVoiceId = useUIStore((state) => state.selectedVoiceId);
   const setSelectedVoiceId = useUIStore((state) => state.setSelectedVoiceId);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -98,6 +99,14 @@ export function VoicesTab() {
     return (
       <div className="flex items-center justify-center h-full">
         <div className="text-muted-foreground">{t('voicesTab.loading')}</div>
+      </div>
+    );
+  }
+
+  if (isProfileDialogOpen) {
+    return (
+      <div className="h-full w-full min-h-0 flex flex-col overflow-hidden">
+        <ProfileForm />
       </div>
     );
   }
@@ -173,8 +182,6 @@ export function VoicesTab() {
           <VoiceInspector key={selectedVoiceId} profileId={selectedVoiceId} />
         </div>
       )}
-
-      <ProfileForm />
     </div>
   );
 }

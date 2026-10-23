@@ -16,7 +16,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useQuery } from '@tanstack/react-query';
-import { ChevronDown, ChevronRight, GripVertical, Plus, Power, Trash2 } from 'lucide-react';
+import { ChevronDown, ChevronRight, GripVertical, Plus, Power, Trash2, Wand2 } from 'lucide-react';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
@@ -236,11 +236,31 @@ export function EffectsChainEditor({
         </SortableContext>
       </DndContext>
 
+      {items.length === 0 && (
+        <div className="rounded-xl border border-dashed border-border/70 bg-muted/15 p-6 text-center">
+          <Wand2 className="h-6 w-6 mx-auto mb-2 text-muted-foreground/40" />
+          <p className="text-xs font-semibold text-foreground">
+            {t('effects.chain.emptyTitle', { defaultValue: 'No effects added yet' })}
+          </p>
+          <p className="text-[11px] text-muted-foreground mt-0.5 max-w-xs mx-auto">
+            {t('effects.chain.emptyDesc', {
+              defaultValue: 'Add audio effects below to shape pitch, frequency response, or reverb.',
+            })}
+          </p>
+        </div>
+      )}
+
       {/* Add effect */}
       {availableEffects && (
-        <Select onValueChange={addEffect}>
-          <SelectTrigger className="h-8 border-dashed text-xs text-muted-foreground focus:ring-0 focus:ring-offset-0">
-            <Plus className="mr-1 h-3.5 w-3.5" />
+        <Select
+          key={`add-effect-${items.length}`}
+          value=""
+          onValueChange={(type) => {
+            if (type) addEffect(type);
+          }}
+        >
+          <SelectTrigger className="h-9 border-dashed text-xs text-muted-foreground hover:text-foreground hover:border-foreground/40 transition-colors focus:ring-0 focus:ring-offset-0">
+            <Plus className="mr-1.5 h-3.5 w-3.5" />
             <SelectValue placeholder={t('effects.chain.addEffect')} />
           </SelectTrigger>
           <SelectContent>

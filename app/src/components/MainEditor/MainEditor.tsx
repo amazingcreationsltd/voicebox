@@ -13,6 +13,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { useToast } from '@/components/ui/use-toast';
+import { ProfileForm } from '@/components/VoiceProfiles/ProfileForm';
 import { ProfileList } from '@/components/VoiceProfiles/ProfileList';
 
 import { useImportProfile } from '@/lib/hooks/useProfiles';
@@ -22,6 +23,7 @@ import { useUIStore } from '@/stores/uiStore';
 
 export function MainEditor() {
   const { t } = useTranslation();
+  const isProfileDialogOpen = useUIStore((state) => state.profileDialogOpen);
   const audioUrl = usePlayerStore((state) => state.audioUrl);
   const isPlayerVisible = !!audioUrl;
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -76,6 +78,14 @@ export function MainEditor() {
       });
     }
   };
+
+  if (isProfileDialogOpen) {
+    return (
+      <div className="h-full w-full min-h-0 flex flex-col overflow-hidden">
+        <ProfileForm />
+      </div>
+    );
+  }
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 lg:gap-6 h-full min-h-0 overflow-hidden relative">

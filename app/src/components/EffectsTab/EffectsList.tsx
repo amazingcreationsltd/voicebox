@@ -9,8 +9,7 @@ import {
   ListPaneTitle,
   ListPaneTitleRow,
 } from '@/components/ListPane';
-import { Button } from '@/components/ui/button';
-import { Chip } from '@heroui/react';
+import { Button as HeroButton, Chip } from '@heroui/react';
 import { apiClient } from '@/lib/api/client';
 import type { EffectPresetResponse } from '@/lib/api/types';
 import { cn } from '@/lib/utils/cn';
@@ -57,10 +56,10 @@ export function EffectsList() {
         <ListPaneTitleRow>
           <ListPaneTitle>{t('effects.title')}</ListPaneTitle>
           <ListPaneActions>
-            <Button onClick={handleCreateNew} size="sm">
-              <Plus className="mr-2 h-4 w-4" />
+            <HeroButton onPress={handleCreateNew} size="sm" variant="primary">
+              <Plus className="mr-1.5 h-3.5 w-3.5" />
               {t('effects.newPreset')}
-            </Button>
+            </HeroButton>
           </ListPaneActions>
         </ListPaneTitleRow>
       </ListPaneHeader>
@@ -108,12 +107,13 @@ export function EffectsList() {
               <div className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider mb-2 px-1">
                 {t('effects.sections.new')}
               </div>
-              <div className="rounded-xl border-2 border-accent/40 bg-accent/5 p-3">
+              <div className="rounded-2xl border border-accent/50 bg-accent/10 p-3.5 shadow-xs ring-1 ring-accent/30">
                 <div className="flex items-center gap-2">
                   <Sparkles className="h-4 w-4 text-accent" />
-                  <span className="text-sm font-medium">{t('effects.unsaved.title')}</span>
+                  <span className="text-sm font-semibold text-foreground">{t('effects.unsaved.title')}</span>
+                  <Chip size="sm" color="accent" className="ml-auto text-[10px]">Draft</Chip>
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">{t('effects.unsaved.hint')}</p>
+                <p className="text-xs text-muted-foreground mt-1 pl-6">{t('effects.unsaved.hint')}</p>
               </div>
             </div>
           )}
@@ -147,10 +147,10 @@ function PresetCard({
     <button
       type="button"
       className={cn(
-        'w-full text-left rounded-xl border p-3 h-[88px] transition-all duration-150',
+        'w-full text-left rounded-2xl border p-3.5 transition-all duration-150',
         isSelected
-          ? 'border-accent/50 bg-accent/10'
-          : 'border-border bg-card hover:bg-muted/50 hover:border-border',
+          ? 'border-accent/60 bg-accent/10 shadow-xs ring-1 ring-accent/30'
+          : 'border-border/60 bg-card hover:bg-muted/40 hover:border-border',
       )}
       onClick={onSelect}
     >
@@ -158,26 +158,28 @@ function PresetCard({
         <Wand2
           className={cn('h-4 w-4 shrink-0', isSelected ? 'text-accent' : 'text-muted-foreground')}
         />
-        <span className="text-sm font-medium truncate">{name}</span>
+        <span className="text-sm font-semibold truncate text-foreground">{name}</span>
         {preset.is_builtin && (
-          <Chip size="sm" className="text-[10px] shrink-0">
+          <Chip size="sm" className="text-[10px] shrink-0 ml-auto">
             {t('effects.badge.builtin')}
           </Chip>
         )}
       </div>
-      <p className="text-xs text-muted-foreground mt-1 line-clamp-1 pl-6">
+      <p className="text-xs text-muted-foreground mt-1 line-clamp-1 pl-6 leading-relaxed">
         {description || t('effects.noDescription')}
       </p>
-      <div className="flex items-center gap-2 mt-1.5 pl-6">
-        <span className="text-[10px] text-muted-foreground">
+      <div className="flex items-center gap-2 mt-2 pl-6">
+        <span className="text-[11px] font-medium text-foreground/75">
           {t('effects.effectCount', { count: effectCount })}
         </span>
-        <span className="text-[10px] text-muted-foreground/50">
-          {preset.effects_chain
-            .filter((e) => e.enabled)
-            .map((e) => e.type)
-            .join(' → ')}
-        </span>
+        {effectCount > 0 && (
+          <span className="text-[11px] text-muted-foreground/60 truncate">
+            {preset.effects_chain
+              .filter((e) => e.enabled)
+              .map((e) => e.type)
+              .join(' · ')}
+          </span>
+        )}
       </div>
     </button>
   );

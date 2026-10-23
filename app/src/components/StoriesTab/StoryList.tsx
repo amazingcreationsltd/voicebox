@@ -1,6 +1,14 @@
-import { BookOpen, MoreHorizontal, Pencil, Plus, Trash2 } from 'lucide-react';
+import { BookOpen, Loader2, MoreHorizontal, Pencil, Plus, Trash2 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import {
+  Button as HeroButton,
+  Input as HeroInput,
+  Label as HeroLabel,
+  Modal,
+  TextArea as HeroTextArea,
+  TextField as HeroTextField,
+} from '@heroui/react';
 import {
   ListPane,
   ListPaneActions,
@@ -23,22 +31,11 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/use-toast';
 import {
   useCreateStory,
@@ -322,93 +319,128 @@ export function StoryList() {
       </ListPaneScroll>
 
       {/* Create Story Dialog */}
-      <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{t('stories.createDialog.title')}</DialogTitle>
-            <DialogDescription>{t('stories.createDialog.description')}</DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="story-name">{t('stories.fields.name')}</Label>
-              <Input
-                id="story-name"
-                placeholder={t('stories.fields.namePlaceholder')}
-                value={newStoryName}
-                onChange={(e) => setNewStoryName(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    handleCreateStory();
-                  }
-                }}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="story-description">{t('stories.fields.descriptionLabel')}</Label>
-              <Textarea
-                id="story-description"
-                placeholder={t('stories.fields.descriptionPlaceholder')}
-                value={newStoryDescription}
-                onChange={(e) => setNewStoryDescription(e.target.value)}
-                rows={3}
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setCreateDialogOpen(false)}>
-              {t('common.cancel')}
-            </Button>
-            <Button onClick={handleCreateStory} disabled={createStory.isPending}>
-              {createStory.isPending
-                ? t('stories.createDialog.creating')
-                : t('stories.createDialog.action')}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <Modal.Backdrop
+        isOpen={createDialogOpen}
+        onOpenChange={setCreateDialogOpen}
+        variant="blur"
+      >
+        <Modal.Container size="sm">
+          <Modal.Dialog className="border border-border/50 bg-background/95 backdrop-blur-xl sm:max-w-md">
+            <Modal.CloseTrigger />
+            <Modal.Header className="gap-1.5 pr-8">
+              <Modal.Heading className="text-xl font-bold tracking-tight text-foreground">
+                {t('stories.createDialog.title')}
+              </Modal.Heading>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                {t('stories.createDialog.description')}
+              </p>
+            </Modal.Header>
+            <Modal.Body className="space-y-4 py-3">
+              <HeroTextField className="w-full">
+                <HeroLabel>{t('stories.fields.name')}</HeroLabel>
+                <HeroInput
+                  id="story-name"
+                  placeholder={t('stories.fields.namePlaceholder')}
+                  value={newStoryName}
+                  onChange={(e) => setNewStoryName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      handleCreateStory();
+                    }
+                  }}
+                  autoFocus
+                />
+              </HeroTextField>
+              <HeroTextField className="w-full">
+                <HeroLabel>{t('stories.fields.descriptionLabel')}</HeroLabel>
+                <HeroTextArea
+                  id="story-description"
+                  placeholder={t('stories.fields.descriptionPlaceholder')}
+                  value={newStoryDescription}
+                  onChange={(e) => setNewStoryDescription(e.target.value)}
+                  rows={3}
+                />
+              </HeroTextField>
+            </Modal.Body>
+            <Modal.Footer className="flex justify-end gap-2.5 pt-3">
+              <HeroButton variant="secondary" onPress={() => setCreateDialogOpen(false)}>
+                {t('common.cancel')}
+              </HeroButton>
+              <HeroButton
+                variant="primary"
+                onPress={handleCreateStory}
+                isDisabled={createStory.isPending || !newStoryName.trim()}
+              >
+                {createStory.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {createStory.isPending
+                  ? t('stories.createDialog.creating')
+                  : t('stories.createDialog.action')}
+              </HeroButton>
+            </Modal.Footer>
+          </Modal.Dialog>
+        </Modal.Container>
+      </Modal.Backdrop>
 
-      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{t('stories.editDialog.title')}</DialogTitle>
-            <DialogDescription>{t('stories.editDialog.description')}</DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="edit-story-name">{t('stories.fields.name')}</Label>
-              <Input
-                id="edit-story-name"
-                placeholder={t('stories.fields.namePlaceholder')}
-                value={newStoryName}
-                onChange={(e) => setNewStoryName(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    handleUpdateStory();
-                  }
-                }}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-story-description">{t('stories.fields.descriptionLabel')}</Label>
-              <Textarea
-                id="edit-story-description"
-                placeholder={t('stories.fields.descriptionPlaceholder')}
-                value={newStoryDescription}
-                onChange={(e) => setNewStoryDescription(e.target.value)}
-                rows={3}
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
-              {t('common.cancel')}
-            </Button>
-            <Button onClick={handleUpdateStory} disabled={updateStory.isPending}>
-              {updateStory.isPending ? t('stories.editDialog.saving') : t('common.save')}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* Edit Story Dialog */}
+      <Modal.Backdrop
+        isOpen={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+        variant="blur"
+      >
+        <Modal.Container size="sm">
+          <Modal.Dialog className="border border-border/50 bg-background/95 backdrop-blur-xl sm:max-w-md">
+            <Modal.CloseTrigger />
+            <Modal.Header className="gap-1.5 pr-8">
+              <Modal.Heading className="text-xl font-bold tracking-tight text-foreground">
+                {t('stories.editDialog.title')}
+              </Modal.Heading>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                {t('stories.editDialog.description')}
+              </p>
+            </Modal.Header>
+            <Modal.Body className="space-y-4 py-3">
+              <HeroTextField className="w-full">
+                <HeroLabel>{t('stories.fields.name')}</HeroLabel>
+                <HeroInput
+                  id="edit-story-name"
+                  placeholder={t('stories.fields.namePlaceholder')}
+                  value={newStoryName}
+                  onChange={(e) => setNewStoryName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      handleUpdateStory();
+                    }
+                  }}
+                  autoFocus
+                />
+              </HeroTextField>
+              <HeroTextField className="w-full">
+                <HeroLabel>{t('stories.fields.descriptionLabel')}</HeroLabel>
+                <HeroTextArea
+                  id="edit-story-description"
+                  placeholder={t('stories.fields.descriptionPlaceholder')}
+                  value={newStoryDescription}
+                  onChange={(e) => setNewStoryDescription(e.target.value)}
+                  rows={3}
+                />
+              </HeroTextField>
+            </Modal.Body>
+            <Modal.Footer className="flex justify-end gap-2.5 pt-3">
+              <HeroButton variant="secondary" onPress={() => setEditDialogOpen(false)}>
+                {t('common.cancel')}
+              </HeroButton>
+              <HeroButton
+                variant="primary"
+                onPress={handleUpdateStory}
+                isDisabled={updateStory.isPending || !newStoryName.trim()}
+              >
+                {updateStory.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {updateStory.isPending ? t('stories.editDialog.saving') : t('common.save')}
+              </HeroButton>
+            </Modal.Footer>
+          </Modal.Dialog>
+        </Modal.Container>
+      </Modal.Backdrop>
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>

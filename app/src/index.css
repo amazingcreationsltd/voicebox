@@ -140,6 +140,45 @@
   color: hsl(var(--foreground));
 }
 
+/* HeroUI Button & Input token overrides for HSL theme compatibility */
+.button--primary {
+  --button-bg: hsl(var(--accent));
+  --button-bg-hover: color-mix(in oklab, hsl(var(--accent)) 85%, black 15%);
+  --button-bg-pressed: color-mix(in oklab, hsl(var(--accent)) 75%, black 25%);
+  --button-fg: hsl(var(--accent-foreground));
+}
+
+.button--secondary {
+  --button-bg: hsl(var(--secondary));
+  --button-bg-hover: color-mix(in oklab, hsl(var(--secondary)) 85%, black 15%);
+  --button-bg-pressed: color-mix(in oklab, hsl(var(--secondary)) 75%, black 25%);
+  --button-fg: hsl(var(--secondary-foreground));
+  border: 1px solid hsl(var(--border) / 0.8);
+}
+
+.button--outline {
+  --button-border: hsl(var(--border));
+  border: 1px solid hsl(var(--border));
+  --button-fg: hsl(var(--foreground));
+  --button-bg-hover: hsl(var(--muted) / 0.5);
+}
+
+/* Light, subtle placeholder color across all HeroUI inputs & textareas */
+.input,
+.textarea,
+[data-slot="input"],
+[data-slot="textarea"] {
+  --field-placeholder: hsl(var(--muted-foreground) / 0.55);
+}
+
+.input::placeholder,
+.textarea::placeholder,
+[data-slot="input"]::placeholder,
+[data-slot="textarea"]::placeholder {
+  color: hsl(var(--muted-foreground) / 0.55) !important;
+  opacity: 0.75;
+}
+
 :root {
   --background: 0 0% 95%;
   --foreground: 0 0% 5%;

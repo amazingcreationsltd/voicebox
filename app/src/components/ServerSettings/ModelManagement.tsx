@@ -31,13 +31,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Chip, Modal } from '@heroui/react';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/components/ui/use-toast';
 import { apiClient } from '@/lib/api/client';
@@ -679,142 +673,150 @@ export function ModelManagement() {
       ) : null}
 
       {/* Model Detail Modal */}
-      <Dialog open={detailOpen} onOpenChange={setDetailOpen}>
-        <DialogContent className="sm:max-w-md">
-          {freshSelectedModel && (
-            <>
-              <DialogHeader>
-                <DialogTitle>{freshSelectedModel.display_name}</DialogTitle>
-                <DialogDescription className="flex items-center gap-1.5">
-                  {freshSelectedModel.hf_repo_id ? (
-                    <a
-                      href={`https://huggingface.co/${freshSelectedModel.hf_repo_id}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 hover:underline"
-                    >
-                      {freshSelectedModel.hf_repo_id}
-                      <ExternalLink className="h-3 w-3" />
-                    </a>
-                  ) : (
-                    freshSelectedModel.model_name
-                  )}
-                </DialogDescription>
-              </DialogHeader>
-
-              <div className="space-y-4 pt-2">
-                {/* Status badges */}
-                <div className="flex items-center gap-2 flex-wrap">
-                  {freshSelectedModel.loaded && (
-                    <Badge className="text-xs bg-accent/15 text-accent border-accent/30 hover:bg-accent/15">
-                      <CircleCheck className="h-3 w-3 mr-1" />
-                      {t('models.status.loaded')}
-                    </Badge>
-                  )}
-                  {selectedState?.hasError && (
-                    <Badge variant="destructive" className="text-xs">
-                      <CircleX className="h-3 w-3 mr-1" />
-                      {t('common.error')}
-                    </Badge>
-                  )}
-                </div>
-
-                {/* HuggingFace model card info */}
-                {hfLoading && freshSelectedModel.hf_repo_id && (
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground py-2">
-                    <Loader2 className="h-3 w-3 animate-spin" />
-                    {t('models.detail.loadingInfo')}
-                  </div>
-                )}
-
-                {/* Description */}
-                {MODEL_DESCRIPTIONS[freshSelectedModel.model_name] && (
-                  <p className="text-xs text-muted-foreground leading-relaxed">
-                    {MODEL_DESCRIPTIONS[freshSelectedModel.model_name]}
-                  </p>
-                )}
-
-                {hfModelInfo && (
-                  <div className="space-y-3">
-                    {/* Pipeline tag + author */}
-                    <div className="flex flex-wrap gap-1.5">
-                      {hfModelInfo.pipeline_tag && (
-                        <Badge variant="outline" className="text-[10px]">
-                          {formatPipelineTag(hfModelInfo.pipeline_tag)}
-                        </Badge>
-                      )}
-                      {hfModelInfo.library_name && (
-                        <Badge variant="outline" className="text-[10px]">
-                          {hfModelInfo.library_name}
-                        </Badge>
-                      )}
-                      {hfModelInfo.author && (
-                        <Badge variant="outline" className="text-[10px]">
-                          {t('models.detail.byAuthor', { author: hfModelInfo.author })}
-                        </Badge>
-                      )}
-                    </div>
-
-                    {/* Stats row */}
-                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                      <span
-                        className="flex items-center gap-1"
-                        title={t('models.detail.downloads')}
+      <Modal.Backdrop
+        isOpen={detailOpen}
+        onOpenChange={setDetailOpen}
+        variant="blur"
+      >
+        <Modal.Container size="sm">
+          <Modal.Dialog className="border border-border/50 bg-background/95 backdrop-blur-xl sm:max-w-md">
+            <Modal.CloseTrigger />
+            {freshSelectedModel && (
+              <>
+                <Modal.Header className="gap-1.5 pr-8">
+                  <Modal.Heading className="text-xl font-bold tracking-tight text-foreground">
+                    {freshSelectedModel.display_name}
+                  </Modal.Heading>
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    {freshSelectedModel.hf_repo_id ? (
+                      <a
+                        href={`https://huggingface.co/${freshSelectedModel.hf_repo_id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-accent hover:underline font-medium"
                       >
-                        <Download className="h-3.5 w-3.5" />
-                        {formatDownloads(hfModelInfo.downloads)}
-                      </span>
-                      <span className="flex items-center gap-1" title={t('models.detail.likes')}>
-                        <Heart className="h-3.5 w-3.5" />
-                        {formatDownloads(hfModelInfo.likes)}
-                      </span>
-                      {license && (
-                        <span
-                          className="flex items-center gap-1"
-                          title={t('models.detail.license')}
-                        >
-                          <Scale className="h-3.5 w-3.5" />
-                          {formatLicense(license)}
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Languages */}
-                    {hfModelInfo.cardData?.language && hfModelInfo.cardData.language.length > 0 && (
-                      <div>
-                        <span className="text-xs text-muted-foreground">
-                          {hfModelInfo.cardData.language.length > 10
-                            ? t('models.detail.languagesCount', {
-                                count: hfModelInfo.cardData.language.length,
-                              })
-                            : t('models.detail.languagesList', {
-                                list: hfModelInfo.cardData.language.join(', '),
-                              })}
-                        </span>
-                      </div>
+                        {freshSelectedModel.hf_repo_id}
+                        <ExternalLink className="h-3 w-3" />
+                      </a>
+                    ) : (
+                      freshSelectedModel.model_name
                     )}
                   </div>
-                )}
+                </Modal.Header>
 
-                {/* Disk size */}
-                {freshSelectedModel.downloaded && freshSelectedModel.size_mb && (
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <HardDrive className="h-3.5 w-3.5" />
-                    <span>
-                      {t('models.detail.onDisk', { size: formatSize(freshSelectedModel.size_mb) })}
-                    </span>
+                <Modal.Body className="space-y-4 py-3">
+                  {/* Status badges */}
+                  <div className="flex items-center gap-2 flex-wrap">
+                    {freshSelectedModel.loaded && (
+                      <Chip size="sm" color="accent" className="text-xs">
+                        <CircleCheck className="h-3 w-3 mr-1" />
+                        {t('models.status.loaded')}
+                      </Chip>
+                    )}
+                    {selectedState?.hasError && (
+                      <Chip size="sm" color="danger" className="text-xs">
+                        <CircleX className="h-3 w-3 mr-1" />
+                        {t('common.error')}
+                      </Chip>
+                    )}
                   </div>
-                )}
 
-                {/* Error detail */}
-                {selectedError?.error && (
-                  <div className="rounded-md bg-destructive/10 border border-destructive/20 p-3 text-xs text-destructive">
-                    {selectedError.error}
-                  </div>
-                )}
+                  {/* HuggingFace model card info */}
+                  {hfLoading && freshSelectedModel.hf_repo_id && (
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground py-2">
+                      <Loader2 className="h-3 w-3 animate-spin text-accent" />
+                      {t('models.detail.loadingInfo')}
+                    </div>
+                  )}
 
-                {/* Actions */}
-                <div className="flex items-center gap-2 pt-2">
+                  {/* Description */}
+                  {MODEL_DESCRIPTIONS[freshSelectedModel.model_name] && (
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      {MODEL_DESCRIPTIONS[freshSelectedModel.model_name]}
+                    </p>
+                  )}
+
+                  {hfModelInfo && (
+                    <div className="space-y-3">
+                      {/* Pipeline tag + author */}
+                      <div className="flex flex-wrap gap-1.5">
+                        {hfModelInfo.pipeline_tag && (
+                          <Chip size="sm" variant="soft" className="text-[10px]">
+                            {formatPipelineTag(hfModelInfo.pipeline_tag)}
+                          </Chip>
+                        )}
+                        {hfModelInfo.library_name && (
+                          <Chip size="sm" variant="soft" className="text-[10px]">
+                            {hfModelInfo.library_name}
+                          </Chip>
+                        )}
+                        {hfModelInfo.author && (
+                          <Chip size="sm" variant="soft" className="text-[10px]">
+                            {t('models.detail.byAuthor', { author: hfModelInfo.author })}
+                          </Chip>
+                        )}
+                      </div>
+
+                      {/* Stats row */}
+                      <div className="flex items-center gap-4 text-xs text-muted-foreground pt-1">
+                        <span
+                          className="flex items-center gap-1.5"
+                          title={t('models.detail.downloads')}
+                        >
+                          <Download className="h-3.5 w-3.5" />
+                          {formatDownloads(hfModelInfo.downloads)}
+                        </span>
+                        <span className="flex items-center gap-1.5" title={t('models.detail.likes')}>
+                          <Heart className="h-3.5 w-3.5" />
+                          {formatDownloads(hfModelInfo.likes)}
+                        </span>
+                        {license && (
+                          <span
+                            className="flex items-center gap-1.5"
+                            title={t('models.detail.license')}
+                          >
+                            <Scale className="h-3.5 w-3.5" />
+                            {formatLicense(license)}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Languages */}
+                      {hfModelInfo.cardData?.language && hfModelInfo.cardData.language.length > 0 && (
+                        <div>
+                          <span className="text-xs text-muted-foreground">
+                            {hfModelInfo.cardData.language.length > 10
+                              ? t('models.detail.languagesCount', {
+                                  count: hfModelInfo.cardData.language.length,
+                                })
+                              : t('models.detail.languagesList', {
+                                  list: hfModelInfo.cardData.language.join(', '),
+                                })}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Disk size */}
+                  {freshSelectedModel.downloaded && freshSelectedModel.size_mb && (
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <HardDrive className="h-3.5 w-3.5" />
+                      <span>
+                        {t('models.detail.onDisk', { size: formatSize(freshSelectedModel.size_mb) })}
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Error detail */}
+                  {selectedError?.error && (
+                    <div className="rounded-xl bg-destructive/10 border border-destructive/20 p-3 text-xs text-destructive">
+                      {selectedError.error}
+                    </div>
+                  )}
+                </Modal.Body>
+
+                <Modal.Footer className="flex items-center gap-2 pt-3">
                   {selectedState?.hasError ? (
                     <>
                       <Button
@@ -872,7 +874,7 @@ export function ModelManagement() {
                       </Button>
                     </>
                   ) : freshSelectedModel.downloaded ? (
-                    <div className="flex gap-2 flex-1">
+                    <div className="flex gap-2.5 flex-1">
                       {freshSelectedModel.loaded && (
                         <Button
                           size="sm"
@@ -908,7 +910,7 @@ export function ModelManagement() {
                             ? t('models.actions.unloadFirst')
                             : t('models.actions.deleteModel')
                         }
-                        className="flex-1"
+                        className="flex-1 text-destructive hover:bg-destructive/10 hover:text-destructive border-border/70"
                       >
                         <Trash2 className="h-4 w-4 mr-2" />
                         {t('models.actions.deleteModel')}
@@ -924,12 +926,12 @@ export function ModelManagement() {
                       {t('models.actions.download')}
                     </Button>
                   )}
-                </div>
-              </div>
-            </>
-          )}
-        </DialogContent>
-      </Dialog>
+                </Modal.Footer>
+              </>
+            )}
+          </Modal.Dialog>
+        </Modal.Container>
+      </Modal.Backdrop>
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
