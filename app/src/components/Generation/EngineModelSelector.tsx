@@ -7,8 +7,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { FormControl } from '@/components/ui/form';
@@ -16,7 +14,7 @@ import type { VoiceProfileResponse } from '@/lib/api/types';
 import { getLanguageOptionsForEngine } from '@/lib/constants/languages';
 import type { GenerationFormValues } from '@/lib/hooks/useGenerationForm';
 import { cn } from '@/lib/utils/cn';
-import { CpuAiIcon, getEngineLogo } from './ModelLogos';
+import { getEngineLogo } from './ModelLogos';
 
 /**
  * Engine/model options and their display metadata.
@@ -158,57 +156,46 @@ export function EngineModelSelector({ form, compact, selectedProfile }: EngineMo
             type="button"
             variant="ghost"
             className={cn(
-              'h-11 text-xs bg-card border border-border rounded-xl hover:bg-background/50 transition-all pl-2 pr-3 font-normal flex items-center justify-between w-full gap-2.5',
-              compact && 'h-11 text-xs',
+              'h-9.5 text-xs bg-muted/40 hover:bg-muted/70 border border-border/60 hover:border-border rounded-xl transition-all pl-2.5 pr-2.5 font-normal flex items-center justify-between w-full gap-2 shadow-2xs group focus-visible:ring-1 focus-visible:ring-accent',
+              compact && 'h-9.5 text-xs',
             )}
           >
-            <div className="flex items-center gap-2.5 min-w-0 flex-1">
-              <div className="bg-accent text-accent-foreground flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-xs font-semibold shadow-xs overflow-hidden p-1">
-                {getEngineLogo(currentOption?.engine || engine, 'size-5') || (
-                  <span>{currentOption?.label.slice(0, 2).toUpperCase() || 'TT'}</span>
+            <div className="flex items-center gap-2 min-w-0 flex-1">
+              <div className="bg-surface/90 text-foreground/80 group-hover:text-foreground border border-border/40 flex h-6 w-6 shrink-0 items-center justify-center rounded-lg text-xs font-semibold overflow-hidden p-1 transition-colors">
+                {getEngineLogo(currentOption?.engine || engine, 'size-4') || (
+                  <span className="text-[10px] font-semibold">{currentOption?.label.slice(0, 2).toUpperCase() || 'TT'}</span>
                 )}
               </div>
               <div className="flex flex-col text-left leading-tight min-w-0 flex-1">
-                <span className="text-xs font-semibold truncate text-foreground">
+                <span className="text-xs font-medium truncate text-foreground">
                   {currentOption?.label || selectValue}
                 </span>
-                <span className="text-muted-foreground text-[10px] truncate">
+                <span className="text-muted-foreground/80 text-[10px] truncate leading-none mt-0.5">
                   {ENGINE_DESCRIPTIONS[engine] || 'TTS Engine'}
                 </span>
               </div>
             </div>
-            <HiChevronUpDown className="size-4 opacity-70 shrink-0 text-muted-foreground" />
+            <HiChevronUpDown className="size-3.5 opacity-60 shrink-0 text-muted-foreground group-hover:opacity-100 transition-opacity" />
           </Button>
         </DropdownMenuTrigger>
       </FormControl>
       <DropdownMenuContent
         align="center"
         side={compact ? 'top' : undefined}
-        className="w-[var(--radix-dropdown-menu-trigger-width)] rounded-xl p-0 overflow-hidden flex flex-col z-[9999]"
+        className="w-[var(--radix-dropdown-menu-trigger-width)] min-w-[220px] rounded-2xl p-1 bg-popover/95 backdrop-blur-md border border-border/70 shadow-xl overflow-hidden flex flex-col z-[9999]"
       >
-        {/* Sticky pinned header that never scrolls or gets clipped */}
-        <div className="p-1.5 pb-0 bg-popover shrink-0">
-          <div className="px-2 py-1.5 flex items-center gap-2.5">
-            <div className="bg-primary/20 text-accent flex h-8 w-8 shrink-0 items-center justify-center rounded-lg shadow-xs">
-              <CpuAiIcon className="size-5" />
-            </div>
-            <div className="flex flex-col min-w-0">
-              <p className="text-xs font-semibold leading-tight text-foreground">
-                TTS Engine & Model
-              </p>
-              <p className="text-muted-foreground text-[10px] leading-tight truncate mt-0.5">
-                {getEngineDescription(engine) || 'Select speech synthesis engine'}
-              </p>
-            </div>
-          </div>
-          <DropdownMenuSeparator />
-          <DropdownMenuLabel className="text-[11px] font-medium text-muted-foreground px-2 py-1">
-            Available Engines
-          </DropdownMenuLabel>
+        {/* Subtle pinned header */}
+        <div className="px-2.5 py-1.5 flex items-center justify-between border-b border-border/40 mb-1 shrink-0">
+          <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+            TTS Engine & Model
+          </span>
+          <span className="text-[10px] text-muted-foreground/70">
+            {availableOptions.length} available
+          </span>
         </div>
 
-        {/* Scrollable list area below the pinned header */}
-        <div className="overflow-y-auto max-h-[260px] p-1.5 pt-0.5 space-y-0.5">
+        {/* Scrollable list area */}
+        <div className="overflow-y-auto max-h-[260px] p-0.5 space-y-0.5">
           {availableOptions.map((opt) => {
             const isSelected = opt.value === selectValue;
             return (
@@ -216,21 +203,21 @@ export function EngineModelSelector({ form, compact, selectedProfile }: EngineMo
                 key={opt.value}
                 onClick={() => applyEngineSelection(form, opt.value)}
                 className={cn(
-                  'group flex items-center gap-2.5 rounded-md p-1.5 text-xs cursor-pointer transition-colors focus:outline-none',
+                  'group flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-xs cursor-pointer transition-colors focus:outline-none',
                   isSelected
-                    ? 'bg-accent text-accent-foreground font-medium focus:bg-accent focus:text-accent-foreground'
-                    : 'text-foreground/90 hover:bg-white/[0.08] focus:bg-white/[0.08] focus:text-foreground',
+                    ? 'bg-accent/15 text-accent font-medium'
+                    : 'text-foreground/90 hover:bg-muted/60 focus:bg-muted/60 focus:text-foreground',
                 )}
               >
                 <div
                   className={cn(
-                    'flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-[10px] font-semibold transition-colors overflow-hidden p-1',
+                    'flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-[10px] font-semibold transition-colors overflow-hidden p-1',
                     isSelected
-                      ? 'bg-accent-foreground/20 text-accent-foreground'
+                      ? 'bg-accent/25 text-accent'
                       : 'bg-muted/70 text-muted-foreground group-hover:bg-muted group-hover:text-foreground group-focus:text-foreground',
                   )}
                 >
-                  {getEngineLogo(opt.engine, 'size-4.5') || (
+                  {getEngineLogo(opt.engine, 'size-3.5') || (
                     <span>{opt.label.slice(0, 2).toUpperCase()}</span>
                   )}
                 </div>
@@ -239,9 +226,9 @@ export function EngineModelSelector({ form, compact, selectedProfile }: EngineMo
                   <span className="truncate text-xs">{opt.label}</span>
                   <span
                     className={cn(
-                      'text-[10px] truncate transition-colors',
+                      'text-[10px] truncate transition-colors leading-tight',
                       isSelected
-                        ? 'text-accent-foreground/80'
+                        ? 'text-accent/80'
                         : 'text-muted-foreground/80 group-hover:text-muted-foreground group-focus:text-muted-foreground',
                     )}
                   >
@@ -249,7 +236,7 @@ export function EngineModelSelector({ form, compact, selectedProfile }: EngineMo
                   </span>
                 </div>
 
-                {isSelected && <HiCheck className="size-3.5 shrink-0 ml-auto" />}
+                {isSelected && <HiCheck className="size-3.5 shrink-0 ml-auto text-accent" />}
               </DropdownMenuItem>
             );
           })}

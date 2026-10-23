@@ -8,6 +8,7 @@ import {
   Download,
   ExternalLink,
   FolderOpen,
+  Globe,
   HardDrive,
   Heart,
   Loader2,
@@ -683,30 +684,24 @@ export function ModelManagement() {
             <Modal.CloseTrigger />
             {freshSelectedModel && (
               <>
-                <Modal.Header className="gap-1.5 pr-8">
+                <Modal.Header className="gap-2 pr-8">
                   <Modal.Heading className="text-xl font-bold tracking-tight text-foreground">
                     {freshSelectedModel.display_name}
                   </Modal.Heading>
-                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <div className="flex items-center gap-2 flex-wrap">
                     {freshSelectedModel.hf_repo_id ? (
                       <a
                         href={`https://huggingface.co/${freshSelectedModel.hf_repo_id}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-accent hover:underline font-medium"
+                        className="inline-flex items-center gap-1.5 text-xs font-mono font-medium text-accent hover:underline bg-accent/10 px-2.5 py-0.5 rounded-full border border-accent/25 w-fit"
                       >
-                        {freshSelectedModel.hf_repo_id}
+                        <span>{freshSelectedModel.hf_repo_id}</span>
                         <ExternalLink className="h-3 w-3" />
                       </a>
                     ) : (
-                      freshSelectedModel.model_name
+                      <span className="text-xs font-mono text-muted-foreground">{freshSelectedModel.model_name}</span>
                     )}
-                  </div>
-                </Modal.Header>
-
-                <Modal.Body className="space-y-4 py-3">
-                  {/* Status badges */}
-                  <div className="flex items-center gap-2 flex-wrap">
                     {freshSelectedModel.loaded && (
                       <Chip size="sm" color="accent" className="text-xs">
                         <CircleCheck className="h-3 w-3 mr-1" />
@@ -720,91 +715,108 @@ export function ModelManagement() {
                       </Chip>
                     )}
                   </div>
+                </Modal.Header>
 
+                <Modal.Body className="space-y-3.5 py-2">
                   {/* HuggingFace model card info */}
                   {hfLoading && freshSelectedModel.hf_repo_id && (
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground py-2">
-                      <Loader2 className="h-3 w-3 animate-spin text-accent" />
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground py-1">
+                      <Loader2 className="h-3.5 w-3.5 animate-spin text-accent" />
                       {t('models.detail.loadingInfo')}
                     </div>
                   )}
 
-                  {/* Description */}
+                  {/* Description in subtle inset card */}
                   {MODEL_DESCRIPTIONS[freshSelectedModel.model_name] && (
-                    <p className="text-xs text-muted-foreground leading-relaxed">
-                      {MODEL_DESCRIPTIONS[freshSelectedModel.model_name]}
-                    </p>
+                    <div className="rounded-xl border border-border/60 bg-muted/25 p-3.5">
+                      <p className="text-xs text-foreground/80 leading-relaxed font-sans">
+                        {MODEL_DESCRIPTIONS[freshSelectedModel.model_name]}
+                      </p>
+                    </div>
                   )}
 
+                  {/* Category Pills */}
                   {hfModelInfo && (
-                    <div className="space-y-3">
-                      {/* Pipeline tag + author */}
-                      <div className="flex flex-wrap gap-1.5">
-                        {hfModelInfo.pipeline_tag && (
-                          <Chip size="sm" variant="soft" className="text-[10px]">
-                            {formatPipelineTag(hfModelInfo.pipeline_tag)}
-                          </Chip>
-                        )}
-                        {hfModelInfo.library_name && (
-                          <Chip size="sm" variant="soft" className="text-[10px]">
-                            {hfModelInfo.library_name}
-                          </Chip>
-                        )}
-                        {hfModelInfo.author && (
-                          <Chip size="sm" variant="soft" className="text-[10px]">
-                            {t('models.detail.byAuthor', { author: hfModelInfo.author })}
-                          </Chip>
-                        )}
-                      </div>
-
-                      {/* Stats row */}
-                      <div className="flex items-center gap-4 text-xs text-muted-foreground pt-1">
-                        <span
-                          className="flex items-center gap-1.5"
-                          title={t('models.detail.downloads')}
-                        >
-                          <Download className="h-3.5 w-3.5" />
-                          {formatDownloads(hfModelInfo.downloads)}
-                        </span>
-                        <span className="flex items-center gap-1.5" title={t('models.detail.likes')}>
-                          <Heart className="h-3.5 w-3.5" />
-                          {formatDownloads(hfModelInfo.likes)}
-                        </span>
-                        {license && (
-                          <span
-                            className="flex items-center gap-1.5"
-                            title={t('models.detail.license')}
-                          >
-                            <Scale className="h-3.5 w-3.5" />
-                            {formatLicense(license)}
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Languages */}
-                      {hfModelInfo.cardData?.language && hfModelInfo.cardData.language.length > 0 && (
-                        <div>
-                          <span className="text-xs text-muted-foreground">
-                            {hfModelInfo.cardData.language.length > 10
-                              ? t('models.detail.languagesCount', {
-                                  count: hfModelInfo.cardData.language.length,
-                                })
-                              : t('models.detail.languagesList', {
-                                  list: hfModelInfo.cardData.language.join(', '),
-                                })}
-                          </span>
-                        </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {hfModelInfo.pipeline_tag && (
+                        <Chip size="sm" variant="soft">
+                          {formatPipelineTag(hfModelInfo.pipeline_tag)}
+                        </Chip>
+                      )}
+                      {hfModelInfo.library_name && (
+                        <Chip size="sm" variant="soft">
+                          {hfModelInfo.library_name}
+                        </Chip>
+                      )}
+                      {hfModelInfo.author && (
+                        <Chip size="sm" variant="soft">
+                          {t('models.detail.byAuthor', { author: hfModelInfo.author })}
+                        </Chip>
                       )}
                     </div>
                   )}
 
-                  {/* Disk size */}
-                  {freshSelectedModel.downloaded && freshSelectedModel.size_mb && (
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <HardDrive className="h-3.5 w-3.5" />
-                      <span>
-                        {t('models.detail.onDisk', { size: formatSize(freshSelectedModel.size_mb) })}
+                  {/* Metrics & Info 2-column Grid */}
+                  <div className="grid grid-cols-2 gap-2.5">
+                    {/* Downloads & Likes */}
+                    <div className="rounded-xl border border-border/50 bg-card/60 p-3 flex flex-col justify-between">
+                      <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+                        {t('models.detail.popularity', { defaultValue: 'Community' })}
                       </span>
+                      <div className="flex items-center gap-3.5 mt-2 text-xs text-foreground font-medium">
+                        <span className="flex items-center gap-1.5" title={t('models.detail.downloads')}>
+                          <Download className="h-3.5 w-3.5 text-muted-foreground" />
+                          <span className="tabular-nums">{formatDownloads(hfModelInfo?.downloads ?? 0)}</span>
+                        </span>
+                        <span className="flex items-center gap-1.5" title={t('models.detail.likes')}>
+                          <Heart className="h-3.5 w-3.5 text-rose-500/80" />
+                          <span className="tabular-nums">{formatDownloads(hfModelInfo?.likes ?? 0)}</span>
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* License or Storage */}
+                    <div className="rounded-xl border border-border/50 bg-card/60 p-3 flex flex-col justify-between">
+                      <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+                        {license ? t('models.detail.license') : t('models.detail.storage', { defaultValue: 'Storage' })}
+                      </span>
+                      <div className="flex items-center gap-2 mt-2 text-xs text-foreground font-medium truncate">
+                        {license ? (
+                          <span className="flex items-center gap-1.5 truncate" title={formatLicense(license)}>
+                            <Scale className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                            <span className="truncate">{formatLicense(license)}</span>
+                          </span>
+                        ) : (
+                          <span className="flex items-center gap-1.5">
+                            <HardDrive className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                            <span>{freshSelectedModel.size_mb ? formatSize(freshSelectedModel.size_mb) : 'N/A'}</span>
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Footprint & Languages row */}
+                  {(freshSelectedModel.downloaded || (hfModelInfo?.cardData?.language && hfModelInfo.cardData.language.length > 0)) && (
+                    <div className="flex flex-col gap-2 rounded-xl border border-border/50 bg-card/60 p-3 text-xs">
+                      {freshSelectedModel.downloaded && freshSelectedModel.size_mb && (
+                        <div className="flex items-center gap-2">
+                          <HardDrive className="h-3.5 w-3.5 text-accent shrink-0" />
+                          <span className="text-foreground font-medium">
+                            {t('models.detail.onDisk', { size: formatSize(freshSelectedModel.size_mb) })}
+                          </span>
+                        </div>
+                      )}
+                      {hfModelInfo?.cardData?.language && hfModelInfo.cardData.language.length > 0 && (
+                        <div className="flex items-center gap-2 text-muted-foreground text-[11px]">
+                          <Globe className="h-3.5 w-3.5 text-muted-foreground/70 shrink-0" />
+                          <span className="line-clamp-1">
+                            {hfModelInfo.cardData.language.length > 10
+                              ? t('models.detail.languagesCount', { count: hfModelInfo.cardData.language.length })
+                              : t('models.detail.languagesList', { list: hfModelInfo.cardData.language.join(', ') })}
+                          </span>
+                        </div>
+                      )}
                     </div>
                   )}
 

@@ -5,14 +5,12 @@ import { Dices, Loader2, SlidersHorizontal, Sparkles, Wand2 } from 'lucide-react
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { HiCheck } from 'react-icons/hi';
-import { HiChevronUpDown, HiLanguage, HiSparkles } from 'react-icons/hi2';
+import { HiChevronUpDown, HiSparkles } from 'react-icons/hi2';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
@@ -613,57 +611,46 @@ export function FloatingGenerateBox({
                                 <Button
                                   type="button"
                                   variant="ghost"
-                                  className="h-11 text-xs bg-card border border-border rounded-xl hover:bg-background/50 transition-all pl-2 pr-3 font-normal flex items-center justify-between w-full gap-2.5"
+                                  className="h-9.5 text-xs bg-muted/40 hover:bg-muted/70 border border-border/60 hover:border-border rounded-xl transition-all pl-2.5 pr-2.5 font-normal flex items-center justify-between w-full gap-2 shadow-2xs group focus-visible:ring-1 focus-visible:ring-accent"
                                 >
-                                  <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                                    <div className="bg-accent text-accent-foreground flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-xs font-semibold shadow-xs overflow-hidden p-0.5">
+                                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                                    <div className="bg-surface/90 text-foreground/80 group-hover:text-foreground border border-border/40 flex h-6 w-6 shrink-0 items-center justify-center rounded-lg text-xs font-semibold overflow-hidden p-0.5 transition-colors">
                                       {getLanguageFlag(
                                         field.value,
                                         'w-full h-full object-cover rounded-xs',
                                       ) || (
-                                        <span>
+                                        <span className="text-[10px] font-semibold">
                                           {field.value?.toUpperCase().slice(0, 2) || 'EN'}
                                         </span>
                                       )}
                                     </div>
                                     <div className="flex flex-col text-left leading-tight min-w-0 flex-1">
-                                      <span className="text-xs font-semibold truncate text-foreground">
+                                      <span className="text-xs font-medium truncate text-foreground">
                                         {currentLangOpt?.label || field.value}
                                       </span>
-                                      <span className="text-muted-foreground text-[10px] truncate">
+                                      <span className="text-muted-foreground/80 text-[10px] truncate leading-none mt-0.5">
                                         Language
                                       </span>
                                     </div>
                                   </div>
-                                  <HiChevronUpDown className="size-4 opacity-70 shrink-0 text-muted-foreground" />
+                                  <HiChevronUpDown className="size-3.5 opacity-60 shrink-0 text-muted-foreground group-hover:opacity-100 transition-opacity" />
                                 </Button>
                               </DropdownMenuTrigger>
                             </FormControl>
                             <DropdownMenuContent
                               align="center"
                               side="top"
-                              className="w-[var(--radix-dropdown-menu-trigger-width)] rounded-xl p-0 overflow-hidden flex flex-col z-[9999]"
+                              className="w-[var(--radix-dropdown-menu-trigger-width)] min-w-[200px] rounded-2xl p-1 bg-popover/95 backdrop-blur-md border border-border/70 shadow-xl overflow-hidden flex flex-col z-[9999]"
                             >
-                              <div className="p-1.5 pb-0 bg-popover shrink-0">
-                                <div className="px-2 py-1.5 flex items-center gap-2.5">
-                                  <div className="bg-primary/20 text-accent flex h-8 w-8 shrink-0 items-center justify-center rounded-lg shadow-xs">
-                                    <HiLanguage className="size-4.5" />
-                                  </div>
-                                  <div className="flex flex-col min-w-0">
-                                    <p className="text-xs font-semibold leading-tight text-foreground">
-                                      Language
-                                    </p>
-                                    <p className="text-muted-foreground text-[10px] leading-tight truncate mt-0.5">
-                                      Select synthesis language
-                                    </p>
-                                  </div>
-                                </div>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuLabel className="text-[11px] font-medium text-muted-foreground px-2 py-1">
-                                  Supported Languages
-                                </DropdownMenuLabel>
+                              <div className="px-2.5 py-1.5 flex items-center justify-between border-b border-border/40 mb-1 shrink-0">
+                                <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+                                  Language
+                                </span>
+                                <span className="text-[10px] text-muted-foreground/70">
+                                  {engineLangs.length} options
+                                </span>
                               </div>
-                              <div className="overflow-y-auto max-h-[240px] p-1.5 pt-0.5 space-y-0.5">
+                              <div className="overflow-y-auto max-h-[240px] p-0.5 space-y-0.5">
                                 {engineLangs.map((lang) => {
                                   const isSelected = lang.value === field.value;
                                   return (
@@ -671,18 +658,18 @@ export function FloatingGenerateBox({
                                       key={lang.value}
                                       onClick={() => field.onChange(lang.value)}
                                       className={cn(
-                                        'group flex items-center gap-2.5 rounded-md p-1.5 text-xs cursor-pointer transition-colors focus:outline-none',
+                                        'group flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-xs cursor-pointer transition-colors focus:outline-none',
                                         isSelected
-                                          ? 'bg-accent text-accent-foreground font-medium focus:bg-accent focus:text-accent-foreground'
-                                          : 'text-foreground/90 hover:bg-white/[0.08] focus:bg-white/[0.08] focus:text-foreground',
+                                          ? 'bg-accent/15 text-accent font-medium'
+                                          : 'text-foreground/90 hover:bg-muted/60 focus:bg-muted/60 focus:text-foreground',
                                       )}
                                     >
                                       <div
                                         className={cn(
-                                          'flex h-6 w-6 shrink-0 items-center justify-center rounded text-[10px] font-semibold transition-colors overflow-hidden p-0.5',
+                                          'flex h-5 w-5 shrink-0 items-center justify-center rounded text-[10px] font-semibold transition-colors overflow-hidden p-0.5',
                                           isSelected
-                                            ? 'bg-accent-foreground/20 text-accent-foreground'
-                                            : 'bg-muted/70 text-muted-foreground group-hover:bg-muted group-hover:text-foreground group-focus:text-foreground',
+                                            ? 'bg-accent/25 text-accent'
+                                            : 'bg-muted/70 text-muted-foreground group-hover:bg-muted group-hover:text-foreground',
                                         )}
                                       >
                                         {getLanguageFlag(
@@ -692,7 +679,7 @@ export function FloatingGenerateBox({
                                       </div>
                                       <span className="flex-1 truncate">{lang.label}</span>
                                       {isSelected && (
-                                        <HiCheck className="size-3.5 shrink-0 ml-auto" />
+                                        <HiCheck className="size-3.5 shrink-0 ml-auto text-accent" />
                                       )}
                                     </DropdownMenuItem>
                                   );
@@ -726,64 +713,60 @@ export function FloatingGenerateBox({
                             <Button
                               type="button"
                               variant="ghost"
-                              className="h-11 text-xs bg-card border border-border rounded-xl hover:bg-background/50 transition-all pl-2 pr-3 font-normal flex items-center justify-between w-full gap-2.5"
+                              className="h-9.5 text-xs bg-muted/40 hover:bg-muted/70 border border-border/60 hover:border-border rounded-xl transition-all pl-2.5 pr-2.5 font-normal flex items-center justify-between w-full gap-2 shadow-2xs group focus-visible:ring-1 focus-visible:ring-accent"
                             >
-                              <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                                <div className="bg-accent text-accent-foreground flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-xs font-semibold shadow-xs">
-                                  <HiSparkles className="size-4" />
+                              <div className="flex items-center gap-2 min-w-0 flex-1">
+                                <div
+                                  className={cn(
+                                    'flex h-6 w-6 shrink-0 items-center justify-center rounded-lg text-xs font-semibold transition-colors border',
+                                    hasActiveEffect
+                                      ? 'bg-accent/15 text-accent border-accent/30'
+                                      : 'bg-surface/90 text-foreground/70 group-hover:text-foreground border-border/40',
+                                  )}
+                                >
+                                  <HiSparkles className="size-3.5" />
                                 </div>
                                 <div className="flex flex-col text-left leading-tight min-w-0 flex-1">
-                                  <span className="text-xs font-semibold truncate text-foreground">
+                                  <span className="text-xs font-medium truncate text-foreground">
                                     {currentLabel}
                                   </span>
-                                  <span className="text-muted-foreground text-[10px] truncate">
+                                  <span className="text-muted-foreground/80 text-[10px] truncate leading-none mt-0.5">
                                     Voice Effects
                                   </span>
                                 </div>
                               </div>
-                              <HiChevronUpDown className="size-4 opacity-70 shrink-0 text-muted-foreground" />
+                              <HiChevronUpDown className="size-3.5 opacity-60 shrink-0 text-muted-foreground group-hover:opacity-100 transition-opacity" />
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent
                             align="center"
                             side="top"
-                            className="w-[var(--radix-dropdown-menu-trigger-width)] rounded-xl p-0 overflow-hidden flex flex-col z-[9999]"
+                            className="w-[var(--radix-dropdown-menu-trigger-width)] min-w-[200px] rounded-2xl p-1 bg-popover/95 backdrop-blur-md border border-border/70 shadow-xl overflow-hidden flex flex-col z-[9999]"
                           >
-                            <div className="p-1.5 pb-0 bg-popover shrink-0">
-                              <div className="px-2 py-1.5 flex items-center gap-2.5">
-                                <div className="bg-primary/20 text-accent flex h-8 w-8 shrink-0 items-center justify-center rounded-lg shadow-xs">
-                                  <HiSparkles className="size-4.5" />
-                                </div>
-                                <div className="flex flex-col min-w-0">
-                                  <p className="text-xs font-semibold leading-tight text-foreground">
-                                    Voice Effects
-                                  </p>
-                                  <p className="text-muted-foreground text-[10px] leading-tight truncate mt-0.5">
-                                    Apply post-processing effects
-                                  </p>
-                                </div>
-                              </div>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuLabel className="text-[11px] font-medium text-muted-foreground px-2 py-1">
+                            <div className="px-2.5 py-1.5 flex items-center justify-between border-b border-border/40 mb-1 shrink-0">
+                              <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+                                Voice Effects
+                              </span>
+                              <span className="text-[10px] text-muted-foreground/70">
                                 Presets
-                              </DropdownMenuLabel>
+                              </span>
                             </div>
-                            <div className="overflow-y-auto max-h-[240px] p-1.5 pt-0.5 space-y-0.5">
+                            <div className="overflow-y-auto max-h-[240px] p-0.5 space-y-0.5">
                               <DropdownMenuItem
                                 onClick={() => setSelectedPresetId(null)}
                                 className={cn(
-                                  'group flex items-center gap-2.5 rounded-md p-1.5 text-xs cursor-pointer transition-colors focus:outline-none',
+                                  'group flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-xs cursor-pointer transition-colors focus:outline-none',
                                   !hasActiveEffect
-                                    ? 'bg-accent text-accent-foreground font-medium focus:bg-accent focus:text-accent-foreground'
-                                    : 'text-foreground/90 hover:bg-white/[0.08] focus:bg-white/[0.08] focus:text-foreground',
+                                    ? 'bg-accent/15 text-accent font-medium'
+                                    : 'text-foreground/90 hover:bg-muted/60 focus:bg-muted/60 focus:text-foreground',
                                 )}
                               >
                                 <div
                                   className={cn(
-                                    'flex h-6 w-6 shrink-0 items-center justify-center rounded text-[10px] font-semibold transition-colors',
+                                    'flex h-5 w-5 shrink-0 items-center justify-center rounded text-[10px] font-semibold transition-colors',
                                     !hasActiveEffect
-                                      ? 'bg-accent-foreground/20 text-accent-foreground'
-                                      : 'bg-muted text-muted-foreground group-hover:text-foreground group-focus:text-foreground',
+                                      ? 'bg-accent/25 text-accent'
+                                      : 'bg-muted/70 text-muted-foreground group-hover:text-foreground',
                                   )}
                                 >
                                   FX
@@ -792,7 +775,7 @@ export function FloatingGenerateBox({
                                   {t('generation.effects.none')}
                                 </span>
                                 {!hasActiveEffect && (
-                                  <HiCheck className="size-3.5 shrink-0 ml-auto" />
+                                  <HiCheck className="size-3.5 shrink-0 ml-auto text-accent" />
                                 )}
                               </DropdownMenuItem>
                               {selectedProfile?.effects_chain &&
@@ -800,18 +783,18 @@ export function FloatingGenerateBox({
                                   <DropdownMenuItem
                                     onClick={() => setSelectedPresetId('_profile')}
                                     className={cn(
-                                      'group flex items-center gap-2.5 rounded-md p-1.5 text-xs cursor-pointer transition-colors focus:outline-none',
+                                      'group flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-xs cursor-pointer transition-colors focus:outline-none',
                                       selectedPresetId === '_profile'
-                                        ? 'bg-accent text-accent-foreground font-medium focus:bg-accent focus:text-accent-foreground'
-                                        : 'text-foreground/90 hover:bg-white/[0.08] focus:bg-white/[0.08] focus:text-foreground',
+                                        ? 'bg-accent/15 text-accent font-medium'
+                                        : 'text-foreground/90 hover:bg-muted/60 focus:bg-muted/60 focus:text-foreground',
                                     )}
                                   >
                                     <div
                                       className={cn(
-                                        'flex h-6 w-6 shrink-0 items-center justify-center rounded text-[10px] font-semibold transition-colors',
+                                        'flex h-5 w-5 shrink-0 items-center justify-center rounded text-[10px] font-semibold transition-colors',
                                         selectedPresetId === '_profile'
-                                          ? 'bg-accent-foreground/20 text-accent-foreground'
-                                          : 'bg-muted text-muted-foreground group-hover:text-foreground group-focus:text-foreground',
+                                          ? 'bg-accent/25 text-accent'
+                                          : 'bg-muted/70 text-muted-foreground group-hover:text-foreground',
                                       )}
                                     >
                                       PR
@@ -820,7 +803,7 @@ export function FloatingGenerateBox({
                                       {t('generation.effects.profileDefault')}
                                     </span>
                                     {selectedPresetId === '_profile' && (
-                                      <HiCheck className="size-3.5 shrink-0 ml-auto" />
+                                      <HiCheck className="size-3.5 shrink-0 ml-auto text-accent" />
                                     )}
                                   </DropdownMenuItem>
                                 )}
@@ -831,25 +814,25 @@ export function FloatingGenerateBox({
                                     key={preset.id}
                                     onClick={() => setSelectedPresetId(preset.id)}
                                     className={cn(
-                                      'group flex items-center gap-2.5 rounded-md p-1.5 text-xs cursor-pointer transition-colors focus:outline-none',
+                                      'group flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-xs cursor-pointer transition-colors focus:outline-none',
                                       isSelected
-                                        ? 'bg-accent text-accent-foreground font-medium focus:bg-accent focus:text-accent-foreground'
-                                        : 'text-foreground/90 hover:bg-white/[0.08] focus:bg-white/[0.08] focus:text-foreground',
+                                        ? 'bg-accent/15 text-accent font-medium'
+                                        : 'text-foreground/90 hover:bg-muted/60 focus:bg-muted/60 focus:text-foreground',
                                     )}
                                   >
                                     <div
                                       className={cn(
-                                        'flex h-6 w-6 shrink-0 items-center justify-center rounded text-[10px] font-semibold transition-colors',
+                                        'flex h-5 w-5 shrink-0 items-center justify-center rounded text-[10px] font-semibold transition-colors',
                                         isSelected
-                                          ? 'bg-accent-foreground/20 text-accent-foreground'
-                                          : 'bg-muted text-muted-foreground group-hover:text-foreground group-focus:text-foreground',
+                                          ? 'bg-accent/25 text-accent'
+                                          : 'bg-muted/70 text-muted-foreground group-hover:text-foreground',
                                       )}
                                     >
                                       FX
                                     </div>
                                     <span className="flex-1 truncate">{preset.name}</span>
                                     {isSelected && (
-                                      <HiCheck className="size-3.5 shrink-0 ml-auto" />
+                                      <HiCheck className="size-3.5 shrink-0 ml-auto text-accent" />
                                     )}
                                   </DropdownMenuItem>
                                 );

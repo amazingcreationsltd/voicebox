@@ -179,6 +179,39 @@
   opacity: 0.75;
 }
 
+/* HeroUI Chip styling for theme compatibility */
+.chip {
+  --chip-bg: hsl(var(--secondary));
+  --chip-fg: hsl(var(--secondary-foreground));
+  border: 1px solid hsl(var(--border) / 0.7);
+}
+
+.chip--soft,
+.chip[data-variant="soft"] {
+  --chip-bg: hsl(var(--muted) / 0.7);
+  --chip-fg: hsl(var(--foreground) / 0.85);
+  border: 1px solid hsl(var(--border) / 0.6);
+}
+
+.chip--accent {
+  --chip-bg: hsl(var(--accent) / 0.15);
+  --chip-fg: hsl(var(--accent));
+  border: 1px solid hsl(var(--accent) / 0.3);
+}
+
+.chip--danger {
+  --chip-bg: hsl(var(--destructive) / 0.15);
+  --chip-fg: hsl(var(--destructive));
+  border: 1px solid hsl(var(--destructive) / 0.3);
+}
+
+/* Modal close trigger button visibility */
+.modal__close-trigger,
+[data-slot="close-trigger"] {
+  @apply rounded-full p-1.5 text-muted-foreground transition-all hover:bg-muted hover:text-foreground;
+  opacity: 0.85;
+}
+
 :root {
   --background: 0 0% 95%;
   --foreground: 0 0% 5%;
