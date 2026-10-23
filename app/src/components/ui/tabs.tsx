@@ -1,52 +1,134 @@
-import * as TabsPrimitive from '@radix-ui/react-tabs';
 import * as React from 'react';
+import {
+  Tabs as HeroTabs,
+  type TabsRootProps,
+  type TabListProps,
+  type TabProps,
+  type TabPanelProps,
+} from '@heroui/react';
 import { cn } from '@/lib/utils/cn';
 
-const Tabs = TabsPrimitive.Root;
+export interface ExtendedTabsProps extends Omit<TabsRootProps, 'children'> {
+  value?: string;
+  defaultValue?: string;
+  onValueChange?: (value: string) => void;
+  children?: React.ReactNode;
+}
 
-const TabsList = React.forwardRef<
-  React.ElementRef<typeof TabsPrimitive.List>,
-  React.ComponentPropsWithoutRef<typeof TabsPrimitive.List>
->(({ className, ...props }, ref) => (
-  <TabsPrimitive.List
-    ref={ref}
-    className={cn(
-      'inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground',
+const TabsComponent = React.forwardRef<HTMLDivElement, ExtendedTabsProps>(
+  (
+    {
+      value,
+      defaultValue,
+      onValueChange,
+      selectedKey,
+      defaultSelectedKey,
+      onSelectionChange,
       className,
-    )}
-    {...props}
-  />
-));
-TabsList.displayName = TabsPrimitive.List.displayName;
+      children,
+      variant = 'secondary',
+      ...props
+    },
+    ref,
+  ) => {
+    const activeKey = selectedKey !== undefined ? selectedKey : value;
+    const defActiveKey = defaultSelectedKey !== undefined ? defaultSelectedKey : defaultValue;
 
-const TabsTrigger = React.forwardRef<
-  React.ElementRef<typeof TabsPrimitive.Trigger>,
-  React.ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger>
->(({ className, ...props }, ref) => (
-  <TabsPrimitive.Trigger
-    ref={ref}
-    className={cn(
-      'inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm',
-      className,
-    )}
-    {...props}
-  />
-));
-TabsTrigger.displayName = TabsPrimitive.Trigger.displayName;
+    const handleSelectionChange = (key: any) => {
+      onSelectionChange?.(key);
+      onValueChange?.(String(key));
+    };
 
-const TabsContent = React.forwardRef<
-  React.ElementRef<typeof TabsPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof TabsPrimitive.Content>
->(({ className, ...props }, ref) => (
-  <TabsPrimitive.Content
-    ref={ref}
-    className={cn(
-      'mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-      className,
-    )}
-    {...props}
-  />
-));
-TabsContent.displayName = TabsPrimitive.Content.displayName;
+    return (
+      <HeroTabs
+        ref={ref as any}
+        variant={variant}
+        selectedKey={activeKey}
+        defaultSelectedKey={defActiveKey}
+        onSelectionChange={handleSelectionChange}
+        className={cn('w-full', className)}
+        {...props}
+      >
+        {children}
+      </HeroTabs>
+    );
+  },
+);
+TabsComponent.displayName = 'Tabs';
+
+const TabsList = React.forwardRef<HTMLDivElement, TabListProps>(
+  ({ className, children, ...props }, ref) => (
+    <HeroTabs.ListContainer>
+      <HeroTabs.List ref={ref as any} className={cn(className)} {...props}>
+        {children}
+      </HeroTabs.List>
+    </HeroTabs.ListContainer>
+  ),
+);
+TabsList.displayName = 'TabsList';
+
+export interface ExtendedTabTriggerProps extends Omit<TabProps, 'id'> {
+  value?: string;
+  id?: string;
+}
+
+const TabsTrigger = React.forwardRef<HTMLButtonElement, ExtendedTabTriggerProps>(
+  ({ value, id, className, children, ...props }, ref) => {
+    const tabId = id || value || '';
+    return (
+      <HeroTabs.Tab
+        ref={ref as any}
+        id={tabId}
+        className={cn(
+          'text-muted-foreground hover:text-foreground data-[selected=true]:text-foreground transition-colors',
+          className,
+        )}
+        {...props}
+      >
+        {typeof children === 'function'
+          ? (values: any) => (
+              <>
+                {children(values)}
+                <HeroTabs.Indicator />
+              </>
+            )
+          : (
+              <>
+                {children}
+                <HeroTabs.Indicator />
+              </>
+            )}
+      </HeroTabs.Tab>
+    );
+  },
+);
+TabsTrigger.displayName = 'TabsTrigger';
+
+export interface ExtendedTabContentProps extends Omit<TabPanelProps, 'id'> {
+  value?: string;
+  id?: string;
+}
+
+const TabsContent = React.forwardRef<HTMLDivElement, ExtendedTabContentProps>(
+  ({ value, id, className, children, ...props }, ref) => {
+    const panelId = id || value || '';
+    return (
+      <HeroTabs.Panel ref={ref as any} id={panelId} className={cn('pt-4', className)} {...props}>
+        {children}
+      </HeroTabs.Panel>
+    );
+  },
+);
+TabsContent.displayName = 'TabsContent';
+
+const Tabs = Object.assign(TabsComponent, {
+  Root: HeroTabs.Root,
+  ListContainer: HeroTabs.ListContainer,
+  List: HeroTabs.List,
+  Tab: HeroTabs.Tab,
+  Indicator: HeroTabs.Indicator,
+  Separator: HeroTabs.Separator,
+  Panel: HeroTabs.Panel,
+});
 
 export { Tabs, TabsList, TabsTrigger, TabsContent };

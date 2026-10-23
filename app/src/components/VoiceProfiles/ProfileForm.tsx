@@ -1385,9 +1385,9 @@ export function ProfileForm() {
                         ))}
                       </SelectContent>
                     </Select>
-                    <p className="text-xs text-muted-foreground">
+                    <FormDescription>
                       {t('profileForm.fields.defaultEngineHint')}
-                    </p>
+                    </FormDescription>
                   </FormItem>
 
                   {editingProfileId && (

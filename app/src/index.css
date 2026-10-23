@@ -111,6 +111,12 @@
   --color-default: var(--default, hsl(var(--secondary)));
   --color-default-foreground: var(--default-foreground, hsl(var(--foreground)));
 
+  --color-surface: var(--surface, hsl(var(--card)));
+  --color-surface-foreground: var(--surface-foreground, hsl(var(--foreground)));
+
+  --color-field: var(--field-background, hsl(var(--card)));
+  --color-field-foreground: var(--field-foreground, hsl(var(--foreground)));
+
   --color-chart-1: hsl(var(--chart-1));
   --color-chart-2: hsl(var(--chart-2));
   --color-chart-3: hsl(var(--chart-3));
@@ -121,6 +127,17 @@
 .switch {
   --switch-control-bg-checked: hsl(var(--accent));
   --switch-control-bg-checked-hover: color-mix(in oklab, hsl(var(--accent)) 85%, black 15%);
+}
+
+.tabs__tab {
+  color: hsl(var(--muted-foreground));
+}
+.tabs__tab:hover,
+.tabs__tab[data-hovered="true"] {
+  color: hsl(var(--foreground));
+}
+.tabs__tab[data-selected="true"] {
+  color: hsl(var(--foreground));
 }
 
 :root {

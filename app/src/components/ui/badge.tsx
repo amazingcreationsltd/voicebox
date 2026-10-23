@@ -1,31 +1,40 @@
-import { cva, type VariantProps } from 'class-variance-authority';
-import type * as React from 'react';
+import * as React from 'react';
+import { Chip as HeroChip, type ChipRootProps } from '@heroui/react';
 import { cn } from '@/lib/utils/cn';
 
-const badgeVariants = cva(
-  'inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
-  {
-    variants: {
-      variant: {
-        default: 'border-transparent bg-primary text-primary-foreground hover:bg-primary/80',
-        secondary: 'border-border bg-secondary text-secondary-foreground hover:bg-secondary/80',
-        destructive:
-          'border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80',
-        outline: 'text-foreground',
-      },
-    },
-    defaultVariants: {
-      variant: 'default',
-    },
-  },
-);
-
-export interface BadgeProps
-  extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof badgeVariants> {}
-
-function Badge({ className, variant, ...props }: BadgeProps) {
-  return <div className={cn(badgeVariants({ variant }), className)} {...props} />;
+export interface BadgeProps extends Omit<ChipRootProps, 'color' | 'variant' | 'children'> {
+  variant?: 'default' | 'secondary' | 'destructive' | 'outline';
+  color?: ChipRootProps['color'];
+  children?: React.ReactNode;
 }
 
-export { Badge, badgeVariants };
+function Badge({ className, variant = 'default', color, children, ...props }: BadgeProps) {
+  let mappedVariant: 'primary' | 'secondary' | 'tertiary' = 'secondary';
+  let mappedColor = color;
+
+  if (variant === 'default') {
+    mappedVariant = 'primary';
+    mappedColor = color ?? 'accent';
+  } else if (variant === 'destructive') {
+    mappedVariant = 'primary';
+    mappedColor = color ?? 'danger';
+  } else if (variant === 'outline') {
+    mappedVariant = 'tertiary';
+  } else if (variant === 'secondary') {
+    mappedVariant = 'secondary';
+    mappedColor = color ?? 'default';
+  }
+
+  return (
+    <HeroChip
+      variant={mappedVariant}
+      color={mappedColor}
+      className={cn(className)}
+      {...props}
+    >
+      {children}
+    </HeroChip>
+  );
+}
+
+export { Badge, Badge as Chip };

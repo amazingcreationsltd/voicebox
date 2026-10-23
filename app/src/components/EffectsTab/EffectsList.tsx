@@ -10,6 +10,7 @@ import {
   ListPaneTitleRow,
 } from '@/components/ListPane';
 import { Button } from '@/components/ui/button';
+import { Chip } from '@heroui/react';
 import { apiClient } from '@/lib/api/client';
 import type { EffectPresetResponse } from '@/lib/api/types';
 import { cn } from '@/lib/utils/cn';
@@ -159,9 +160,9 @@ function PresetCard({
         />
         <span className="text-sm font-medium truncate">{name}</span>
         {preset.is_builtin && (
-          <span className="text-[10px] bg-muted text-muted-foreground px-1.5 py-0.5 rounded-full shrink-0">
+          <Chip size="sm" className="text-[10px] shrink-0">
             {t('effects.badge.builtin')}
-          </span>
+          </Chip>
         )}
       </div>
       <p className="text-xs text-muted-foreground mt-1 line-clamp-1 pl-6">

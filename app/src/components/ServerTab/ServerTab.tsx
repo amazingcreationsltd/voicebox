@@ -1,4 +1,5 @@
-import { Link, Outlet, useMatchRoute } from '@tanstack/react-router';
+import { Tabs } from '@heroui/react';
+import { Outlet, useMatchRoute, useNavigate } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import { BOTTOM_SAFE_AREA_PADDING } from '@/lib/constants/ui';
 import { cn } from '@/lib/utils/cn';
@@ -36,34 +37,42 @@ export function SettingsLayout() {
   const platform = usePlatform();
   const isPlayerVisible = !!usePlayerStore((state) => state.audioUrl);
   const matchRoute = useMatchRoute();
+  const navigate = useNavigate();
+
+  const currentTab = tabs.find((tab) =>
+    tab.path === '/settings'
+      ? matchRoute({ to: tab.path, fuzzy: false })
+      : matchRoute({ to: tab.path }),
+  );
+  const activeKey = currentTab?.path ?? '/settings';
 
   return (
     <div className="flex flex-col h-full min-h-0">
-      <nav className="flex gap-1 border-b shrink-0">
-        {tabs.map((tab) => {
-          if (tab.tauriOnly && !platform.metadata.isTauri) return null;
+      <Tabs
+        variant="secondary"
+        selectedKey={activeKey}
+        onSelectionChange={(key) => navigate({ to: key as any })}
+        className="w-full shrink-0"
+      >
+        <Tabs.ListContainer>
+          <Tabs.List aria-label={t('settings.tabs.general') || 'Settings'}>
+            {tabs.map((tab) => {
+              if (tab.tauriOnly && !platform.metadata.isTauri) return null;
 
-          const isActive =
-            tab.path === '/settings'
-              ? matchRoute({ to: tab.path, fuzzy: false })
-              : matchRoute({ to: tab.path });
-
-          return (
-            <Link
-              key={tab.path}
-              to={tab.path}
-              className={cn(
-                'px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-px',
-                isActive
-                  ? 'border-accent text-foreground'
-                  : 'border-transparent text-muted-foreground hover:text-foreground hover:border-muted-foreground/30',
-              )}
-            >
-              {tab.label ?? (tab.labelKey ? t(tab.labelKey) : '')}
-            </Link>
-          );
-        })}
-      </nav>
+              return (
+                <Tabs.Tab
+                  key={tab.path}
+                  id={tab.path}
+                  className="px-4 py-2 text-sm font-medium transition-colors text-muted-foreground hover:text-foreground data-[selected=true]:text-foreground"
+                >
+                  {tab.label ?? (tab.labelKey ? t(tab.labelKey) : '')}
+                  <Tabs.Indicator />
+                </Tabs.Tab>
+              );
+            })}
+          </Tabs.List>
+        </Tabs.ListContainer>
+      </Tabs>
 
       <div
         className={cn(
