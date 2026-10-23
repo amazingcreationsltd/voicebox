@@ -1,4 +1,6 @@
 import * as React from 'react';
+import { toast as sonnerToast } from 'sonner';
+import { showPolishedToast } from './halo-toast';
 import type { ToastActionElement, ToastProps } from './toast';
 
 const TOAST_LIMIT = 1;
@@ -134,27 +136,52 @@ type Toast = Omit<ToasterToast, 'id'>;
 function toast({ ...props }: Toast) {
   const id = genId();
 
-  const update = (props: ToasterToast) =>
-    dispatch({
-      type: 'UPDATE_TOAST',
-      toast: { ...props, id },
-    });
-  const dismiss = () => dispatch({ type: 'DISMISS_TOAST', toastId: id });
+  const titleStr =
+    typeof props.title === 'string' ? props.title : props.title ? String(props.title) : '';
+  const descStr =
+    typeof props.description === 'string'
+      ? props.description
+      : props.description
+        ? String(props.description)
+        : undefined;
 
-  dispatch({
-    type: 'ADD_TOAST',
-    toast: {
-      ...props,
-      id,
-      open: true,
-      onOpenChange: (open) => {
-        if (!open) dismiss();
-      },
-    },
+  const sonnerId = showPolishedToast({
+    title: titleStr,
+    description: descStr,
+    rimVariant: props.variant === 'destructive' ? 'destructive' : 'default',
+    duration: typeof props.duration === 'number' ? props.duration : 4000,
   });
 
+  const dismiss = () => {
+    sonnerToast.dismiss(sonnerId);
+  };
+
+  const update = (updateProps: ToasterToast) => {
+    const uTitle =
+      typeof updateProps.title === 'string'
+        ? updateProps.title
+        : updateProps.title
+          ? String(updateProps.title)
+          : undefined;
+    const uDesc =
+      typeof updateProps.description === 'string'
+        ? updateProps.description
+        : updateProps.description
+          ? String(updateProps.description)
+          : undefined;
+
+    if (uTitle) {
+      showPolishedToast({
+        id: sonnerId,
+        title: uTitle,
+        description: uDesc,
+        rimVariant: updateProps.variant === 'destructive' ? 'destructive' : 'default',
+      });
+    }
+  };
+
   return {
-    id: id,
+    id,
     dismiss,
     update,
   };

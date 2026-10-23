@@ -24,10 +24,7 @@ export function QwenLogo({ className = 'size-4', ...props }: LogoProps) {
         d="M119.12 163.03H98.88L87.54 144.71H49.64L61.26 126.39H80.7L38.42 55.29H61.26L83.3 19.03L93.56 37.35L83.3 55.29H161.58L151.32 72.54L170.76 106.28H151.32L141.16 88.34L101.18 163.03H119.12Z"
         fill="white"
       />
-      <path
-        d="M127.86 79.83H76.14L101.18 122.11L127.86 79.83Z"
-        fill="#3c34ab"
-      />
+      <path d="M127.86 79.83H76.14L101.18 122.11L127.86 79.83Z" fill="#3c34ab" />
     </svg>
   );
 }
@@ -118,10 +115,7 @@ export function LuxTTSLogo({ className = 'size-4', ...props }: LogoProps) {
       {...props}
     >
       <rect width="24" height="24" rx="6" fill="#F59E0B" />
-      <path
-        d="M13 3L6 14H12L11 21L18 10H12L13 3Z"
-        fill="white"
-      />
+      <path d="M13 3L6 14H12L11 21L18 10H12L13 3Z" fill="white" />
     </svg>
   );
 }
@@ -172,7 +166,6 @@ export function getEngineLogo(engine: string, className = 'size-4.5') {
       return null;
   }
 }
-
 
 /**
  * Lucide cpu-ai icon (from Lucide v1.57.0)

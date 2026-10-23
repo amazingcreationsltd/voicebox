@@ -22,15 +22,12 @@ const ToastViewport = React.forwardRef<
 ToastViewport.displayName = ToastPrimitives.Viewport.displayName;
 
 const toastVariants = cva(
-  // items-start rather than items-center: a long description scrolls inside a
-  // capped box, and centring it would push the title out of view.
-  'group pointer-events-auto relative flex w-full items-start justify-between space-x-4 overflow-hidden rounded-md border p-6 pr-8 shadow-lg transition-all data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-top-full data-[state=open]:sm:slide-in-from-bottom-full',
+  'group pointer-events-auto relative flex w-full overflow-visible border-none bg-transparent p-0 shadow-none transition-all data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-top-full data-[state=open]:sm:slide-in-from-bottom-full',
   {
     variants: {
       variant: {
-        default: 'border bg-background text-foreground',
-        destructive:
-          'destructive group border-destructive bg-destructive text-destructive-foreground',
+        default: '',
+        destructive: 'destructive group',
       },
     },
     defaultVariants: {
@@ -75,13 +72,13 @@ const ToastClose = React.forwardRef<
   <ToastPrimitives.Close
     ref={ref}
     className={cn(
-      'absolute right-2 top-2 rounded-md p-1 text-foreground/50 opacity-0 transition-opacity hover:text-foreground focus:opacity-100 focus:outline-none focus:ring-2 group-hover:opacity-100 group-[.destructive]:text-red-300 group-[.destructive]:hover:text-red-50 group-[.destructive]:focus:ring-red-400 group-[.destructive]:focus:ring-offset-red-600',
+      'absolute right-2.5 top-2.5 size-7 rounded-full flex items-center justify-center border border-zinc-200/80 bg-zinc-50/50 text-zinc-500 opacity-0 transition-all hover:opacity-100 hover:text-zinc-950 hover:bg-zinc-100 focus:opacity-100 focus:outline-none focus:ring-1 focus:ring-ring group-hover:opacity-100 dark:border-white/10 dark:bg-white/[0.04] dark:text-zinc-400 dark:hover:text-zinc-100 dark:hover:bg-white/10 group-[.destructive]:text-red-400 group-[.destructive]:hover:text-red-500',
       className,
     )}
     toast-close=""
     {...props}
   >
-    <X className="h-4 w-4" />
+    <X className="size-3.5" />
   </ToastPrimitives.Close>
 ));
 ToastClose.displayName = ToastPrimitives.Close.displayName;
@@ -90,7 +87,11 @@ const ToastTitle = React.forwardRef<
   React.ElementRef<typeof ToastPrimitives.Title>,
   React.ComponentPropsWithoutRef<typeof ToastPrimitives.Title>
 >(({ className, ...props }, ref) => (
-  <ToastPrimitives.Title ref={ref} className={cn('text-sm font-semibold', className)} {...props} />
+  <ToastPrimitives.Title
+    ref={ref}
+    className={cn('text-sm font-semibold tracking-tight text-zinc-950 dark:text-zinc-50', className)}
+    {...props}
+  />
 ));
 ToastTitle.displayName = ToastPrimitives.Title.displayName;
 
@@ -106,7 +107,7 @@ const ToastDescription = React.forwardRef<
     // undismissable. Cap it and let it scroll; break-words keeps a long
     // unspaced token (a path, a URL) from widening the toast.
     className={cn(
-      'max-h-[40vh] overflow-y-auto overscroll-contain whitespace-pre-wrap break-words pr-1 text-sm opacity-90',
+      'max-h-[40vh] overflow-y-auto overscroll-contain whitespace-pre-wrap break-words pr-1 text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed',
       className,
     )}
     {...props}

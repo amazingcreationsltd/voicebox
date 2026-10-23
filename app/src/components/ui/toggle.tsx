@@ -1,48 +1,79 @@
 import * as React from 'react';
+import { Switch as HeroSwitch, type SwitchRootProps } from '@heroui/react';
 import { cn } from '@/lib/utils/cn';
 
-export interface ToggleProps {
+export interface ToggleProps extends Omit<SwitchRootProps, 'children' | 'onChange'> {
   checked?: boolean;
+  defaultChecked?: boolean;
   onCheckedChange?: (checked: boolean) => void;
   disabled?: boolean;
   className?: string;
   id?: string;
+  'aria-label'?: string;
+  children?: React.ReactNode;
+  onChange?: (checked: boolean) => void;
 }
 
-const Toggle = React.forwardRef<HTMLButtonElement, ToggleProps>(
-  ({ checked = false, onCheckedChange, disabled = false, className, id, ...props }, ref) => {
+const ToggleComponent = React.forwardRef<HTMLDivElement, ToggleProps>(
+  (
+    {
+      checked,
+      defaultChecked,
+      isSelected,
+      defaultSelected,
+      onCheckedChange,
+      onChange,
+      disabled = false,
+      isDisabled,
+      className,
+      id,
+      'aria-label': ariaLabel,
+      children,
+      size,
+      ...props
+    },
+    ref,
+  ) => {
+    const selected = isSelected !== undefined ? isSelected : checked;
+    const defSelected = defaultSelected !== undefined ? defaultSelected : defaultChecked;
+    const disabledState = isDisabled !== undefined ? isDisabled : disabled;
+
+    const handleChange = (val: boolean) => {
+      onCheckedChange?.(val);
+      onChange?.(val);
+    };
+
     return (
-      <button
-        type="button"
-        ref={ref}
+      <HeroSwitch
+        ref={ref as any}
         id={id}
-        role="switch"
-        aria-checked={checked}
-        disabled={disabled}
-        onClick={() => {
-          if (!disabled && onCheckedChange) {
-            onCheckedChange(!checked);
-          }
-        }}
-        className={cn(
-          'relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-          checked ? 'bg-accent' : 'bg-muted-foreground/25',
-          disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer',
-          className,
-        )}
+        isSelected={selected}
+        defaultSelected={defSelected}
+        onChange={handleChange}
+        isDisabled={disabledState}
+        aria-label={ariaLabel}
+        size={size}
+        className={cn('inline-flex items-center cursor-pointer', className)}
         {...props}
       >
-        <span
-          className={cn(
-            'pointer-events-none block h-4 w-4 rounded-full bg-white shadow-sm transition-transform',
-            checked ? 'translate-x-[18px]' : 'translate-x-[2px]',
-          )}
-        />
-      </button>
+        <HeroSwitch.Content>
+          <HeroSwitch.Control>
+            <HeroSwitch.Thumb />
+          </HeroSwitch.Control>
+          {children}
+        </HeroSwitch.Content>
+      </HeroSwitch>
     );
   },
 );
-Toggle.displayName = 'Toggle';
+ToggleComponent.displayName = 'Toggle';
 
-export { Toggle };
+const Toggle = Object.assign(ToggleComponent, {
+  Root: HeroSwitch.Root,
+  Content: HeroSwitch.Content,
+  Control: HeroSwitch.Control,
+  Thumb: HeroSwitch.Thumb,
+  Icon: HeroSwitch.Icon,
+});
+
+export { Toggle, Toggle as Switch };

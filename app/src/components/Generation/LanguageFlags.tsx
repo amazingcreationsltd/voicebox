@@ -13,8 +13,14 @@ export function FlagEN({ className = 'size-4', ...props }: FlagProps) {
   return (
     <svg viewBox="0 0 640 480" className={className} {...props}>
       <path fill="#012169" d="M0 0h640v480H0z" />
-      <path fill="#FFF" d="m75 0 245 180L565 0h75v60L435 240l205 180v60h-75L320 300 75 480H0v-60l205-180L0 60V0h75z" />
-      <path fill="#C8102E" d="m424 288 216 156v36L388 288h36zm-208-96L0 36V0l252 192h-36zm160-96L640 18v18L448 192h-72zm-272 96L0 444v-18l192-156h72z" />
+      <path
+        fill="#FFF"
+        d="m75 0 245 180L565 0h75v60L435 240l205 180v60h-75L320 300 75 480H0v-60l205-180L0 60V0h75z"
+      />
+      <path
+        fill="#C8102E"
+        d="m424 288 216 156v36L388 288h36zm-208-96L0 36V0l252 192h-36zm160-96L640 18v18L448 192h-72zm-272 96L0 444v-18l192-156h72z"
+      />
       <path fill="#FFF" d="M240 0h160v480H240zM0 160h640v160H0z" />
       <path fill="#C8102E" d="M266 0h108v480H266zM0 186h640v108H0z" />
     </svg>
@@ -26,11 +32,30 @@ export function FlagZH({ className = 'size-4', ...props }: FlagProps) {
   return (
     <svg viewBox="0 0 640 480" className={className} {...props}>
       <rect width="640" height="480" fill="#DE2910" />
-      <polygon points="100,50 112,86 149,86 119,108 131,144 100,122 69,144 81,108 51,86 88,86" fill="#FFDE00" />
-      <polygon points="200,30 205,45 220,45 208,55 212,70 200,60 188,70 192,55 180,45 195,45" fill="#FFDE00" transform="scale(0.7) translate(80, 0)" />
-      <polygon points="240,70 245,85 260,85 248,95 252,110 240,100 228,110 232,95 220,85 235,85" fill="#FFDE00" transform="scale(0.7) translate(100, 20)" />
-      <polygon points="240,130 245,145 260,145 248,155 252,170 240,160 228,170 232,155 220,145 235,145" fill="#FFDE00" transform="scale(0.7) translate(100, 60)" />
-      <polygon points="200,180 205,195 220,195 208,205 212,220 200,210 188,220 192,205 180,195 195,195" fill="#FFDE00" transform="scale(0.7) translate(80, 80)" />
+      <polygon
+        points="100,50 112,86 149,86 119,108 131,144 100,122 69,144 81,108 51,86 88,86"
+        fill="#FFDE00"
+      />
+      <polygon
+        points="200,30 205,45 220,45 208,55 212,70 200,60 188,70 192,55 180,45 195,45"
+        fill="#FFDE00"
+        transform="scale(0.7) translate(80, 0)"
+      />
+      <polygon
+        points="240,70 245,85 260,85 248,95 252,110 240,100 228,110 232,95 220,85 235,85"
+        fill="#FFDE00"
+        transform="scale(0.7) translate(100, 20)"
+      />
+      <polygon
+        points="240,130 245,145 260,145 248,155 252,170 240,160 228,170 232,155 220,145 235,145"
+        fill="#FFDE00"
+        transform="scale(0.7) translate(100, 60)"
+      />
+      <polygon
+        points="200,180 205,195 220,195 208,205 212,220 200,210 188,220 192,205 180,195 195,195"
+        fill="#FFDE00"
+        transform="scale(0.7) translate(80, 80)"
+      />
     </svg>
   );
 }
@@ -53,12 +78,60 @@ export function FlagKO({ className = 'size-4', ...props }: FlagProps) {
       <circle cx="320" cy="240" r="120" fill="#CD2E3A" />
       <path d="M200 240a120 120 0 0 0 240 0 60 60 0 0 1-120 0 60 60 0 0 0-120 0z" fill="#0047A0" />
       {/* Trigrams */}
-      <rect x="90" y="80" width="16" height="70" rx="3" transform="rotate(-34 98 115)" fill="#000" />
-      <rect x="114" y="80" width="16" height="70" rx="3" transform="rotate(-34 122 115)" fill="#000" />
-      <rect x="138" y="80" width="16" height="70" rx="3" transform="rotate(-34 146 115)" fill="#000" />
-      <rect x="490" y="330" width="16" height="70" rx="3" transform="rotate(-34 498 365)" fill="#000" />
-      <rect x="514" y="330" width="16" height="70" rx="3" transform="rotate(-34 522 365)" fill="#000" />
-      <rect x="538" y="330" width="16" height="70" rx="3" transform="rotate(-34 546 365)" fill="#000" />
+      <rect
+        x="90"
+        y="80"
+        width="16"
+        height="70"
+        rx="3"
+        transform="rotate(-34 98 115)"
+        fill="#000"
+      />
+      <rect
+        x="114"
+        y="80"
+        width="16"
+        height="70"
+        rx="3"
+        transform="rotate(-34 122 115)"
+        fill="#000"
+      />
+      <rect
+        x="138"
+        y="80"
+        width="16"
+        height="70"
+        rx="3"
+        transform="rotate(-34 146 115)"
+        fill="#000"
+      />
+      <rect
+        x="490"
+        y="330"
+        width="16"
+        height="70"
+        rx="3"
+        transform="rotate(-34 498 365)"
+        fill="#000"
+      />
+      <rect
+        x="514"
+        y="330"
+        width="16"
+        height="70"
+        rx="3"
+        transform="rotate(-34 522 365)"
+        fill="#000"
+      />
+      <rect
+        x="538"
+        y="330"
+        width="16"
+        height="70"
+        rx="3"
+        transform="rotate(-34 546 365)"
+        fill="#000"
+      />
     </svg>
   );
 }

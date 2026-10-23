@@ -1,9 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { HiSquares2X2, HiStar, HiPlus, HiCog6Tooth } from 'react-icons/hi2';
-import { HiChevronUpDown } from 'react-icons/hi2';
-
+import { HiCheck } from 'react-icons/hi';
+import { HiChevronUpDown, HiCog6Tooth, HiPlus, HiSquares2X2, HiStar } from 'react-icons/hi2';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,7 +11,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { HiCheck } from 'react-icons/hi';
 
 const workspaces = [
   {
@@ -60,9 +58,7 @@ const DropdownMenu14 = () => {
       <DropdownMenuContent align="center" className="w-[320px] rounded-lg p-2">
         <div className="px-2 py-2">
           <p className="text-sm font-semibold">Workspaces</p>
-          <p className="text-muted-foreground text-xs">
-            Switch between your workspaces
-          </p>
+          <p className="text-muted-foreground text-xs">Switch between your workspaces</p>
         </div>
 
         <DropdownMenuSeparator />
@@ -84,14 +80,10 @@ const DropdownMenu14 = () => {
 
             <div className="flex flex-col">
               <span className="text-sm font-medium">{ws.name}</span>
-              <span className="text-muted-foreground text-xs">
-                {ws.members} members
-              </span>
+              <span className="text-muted-foreground text-xs">{ws.members} members</span>
             </div>
 
-            {selected.id === ws.id && (
-              <HiCheck className="text-primary ml-auto size-4" />
-            )}
+            {selected.id === ws.id && <HiCheck className="text-primary ml-auto size-4" />}
           </DropdownMenuItem>
         ))}
 
@@ -117,9 +109,7 @@ const DropdownMenu14 = () => {
               <span className="text-muted-foreground text-xs">{ws.plan}</span>
             </div>
 
-            <span className="text-muted-foreground ml-auto text-xs">
-              {ws.members}
-            </span>
+            <span className="text-muted-foreground ml-auto text-xs">{ws.members}</span>
           </DropdownMenuItem>
         ))}
 

@@ -1209,9 +1209,7 @@ export function ProfileForm() {
                           <div className="text-sm font-medium text-muted-foreground">
                             {t('profileForm.design.badge')}
                           </div>
-                          <p className="text-sm leading-relaxed">
-                            {editingProfile.design_prompt}
-                          </p>
+                          <p className="text-sm leading-relaxed">{editingProfile.design_prompt}</p>
                           <Badge variant="secondary" className="text-xs">
                             {editingProfile.default_engine}
                           </Badge>
@@ -1326,9 +1324,7 @@ export function ProfileForm() {
                             {...field}
                           />
                         </FormControl>
-                        <FormDescription>
-                          {t('profileForm.fields.personalityHint')}
-                        </FormDescription>
+                        <FormDescription>{t('profileForm.fields.personalityHint')}</FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}

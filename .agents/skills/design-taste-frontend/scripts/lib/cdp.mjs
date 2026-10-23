@@ -30,8 +30,12 @@ export function findChrome() {
     '/Applications/Brave Browser.app/Contents/MacOS/Brave Browser',
     join(home, 'Applications/Google Chrome.app/Contents/MacOS/Google Chrome'),
     // Linux
-    '/usr/bin/google-chrome', '/usr/bin/google-chrome-stable', '/usr/bin/chromium',
-    '/usr/bin/chromium-browser', '/snap/bin/chromium', '/usr/bin/microsoft-edge',
+    '/usr/bin/google-chrome',
+    '/usr/bin/google-chrome-stable',
+    '/usr/bin/chromium',
+    '/usr/bin/chromium-browser',
+    '/snap/bin/chromium',
+    '/usr/bin/microsoft-edge',
   ];
   for (const c of candidates) if (c && existsSync(c)) return c;
   return null;
@@ -40,20 +44,35 @@ export function findChrome() {
 export class Browser {
   static async launch({ width = 1440, height = 900, extraArgs = [] } = {}) {
     if (typeof WebSocket === 'undefined') {
-      throw new Error('Node 22+ is required (built-in WebSocket missing). Current: ' + process.version);
+      throw new Error(
+        'Node 22+ is required (built-in WebSocket missing). Current: ' + process.version,
+      );
     }
     const exe = findChrome();
     if (!exe) {
-      throw new Error('No Chrome/Edge/Chromium found. Install one or set CHROME_PATH to its executable.');
+      throw new Error(
+        'No Chrome/Edge/Chromium found. Install one or set CHROME_PATH to its executable.',
+      );
     }
     const dir = mkdtempSync(join(tmpdir(), 'ad-chrome-'));
     const args = [
-      '--headless=new', '--remote-debugging-port=0', `--user-data-dir=${dir}`,
-      '--no-first-run', '--no-default-browser-check', '--mute-audio', '--hide-scrollbars',
-      '--disable-background-timer-throttling', '--disable-renderer-backgrounding',
-      '--disable-backgrounding-occluded-windows', '--disable-features=Translate,MediaRouter',
-      '--force-color-profile=srgb', '--autoplay-policy=no-user-gesture-required',
-      '--enable-unsafe-swiftshader', `--window-size=${width},${height}`, ...extraArgs, 'about:blank',
+      '--headless=new',
+      '--remote-debugging-port=0',
+      `--user-data-dir=${dir}`,
+      '--no-first-run',
+      '--no-default-browser-check',
+      '--mute-audio',
+      '--hide-scrollbars',
+      '--disable-background-timer-throttling',
+      '--disable-renderer-backgrounding',
+      '--disable-backgrounding-occluded-windows',
+      '--disable-features=Translate,MediaRouter',
+      '--force-color-profile=srgb',
+      '--autoplay-policy=no-user-gesture-required',
+      '--enable-unsafe-swiftshader',
+      `--window-size=${width},${height}`,
+      ...extraArgs,
+      'about:blank',
     ];
     const proc = spawn(exe, args, { stdio: ['ignore', 'ignore', 'pipe'] });
     const wsUrl = await new Promise((resolve, reject) => {
@@ -62,20 +81,37 @@ export class Browser {
       proc.stderr.on('data', (d) => {
         buf += d.toString();
         const m = buf.match(/DevTools listening on (ws:\/\/[^\s]+)/);
-        if (m) { clearTimeout(t); resolve(m[1]); }
+        if (m) {
+          clearTimeout(t);
+          resolve(m[1]);
+        }
       });
-      proc.on('exit', (code) => { clearTimeout(t); reject(new Error('Chrome exited early, code ' + code + '\n' + buf.slice(-600))); });
+      proc.on('exit', (code) => {
+        clearTimeout(t);
+        reject(new Error('Chrome exited early, code ' + code + '\n' + buf.slice(-600)));
+      });
     });
     const b = new Browser();
-    b.proc = proc; b.dir = dir; b.nextId = 1; b.pending = new Map(); b.listeners = new Map();
+    b.proc = proc;
+    b.dir = dir;
+    b.nextId = 1;
+    b.pending = new Map();
+    b.listeners = new Map();
     b.ws = new WebSocket(wsUrl);
-    await new Promise((res, rej) => { b.ws.onopen = res; b.ws.onerror = () => rej(new Error('CDP socket failed')); });
+    await new Promise((res, rej) => {
+      b.ws.onopen = res;
+      b.ws.onerror = () => rej(new Error('CDP socket failed'));
+    });
     b.ws.onmessage = (ev) => {
-      const msg = JSON.parse(typeof ev.data === 'string' ? ev.data : Buffer.from(ev.data).toString());
+      const msg = JSON.parse(
+        typeof ev.data === 'string' ? ev.data : Buffer.from(ev.data).toString(),
+      );
       if (msg.id && b.pending.has(msg.id)) {
         const { resolve, reject, timer } = b.pending.get(msg.id);
-        clearTimeout(timer); b.pending.delete(msg.id);
-        if (msg.error) reject(new Error(msg.error.message)); else resolve(msg.result);
+        clearTimeout(timer);
+        b.pending.delete(msg.id);
+        if (msg.error) reject(new Error(msg.error.message));
+        else resolve(msg.result);
       } else if (msg.method) {
         const fns = b.listeners.get((msg.sessionId || '') + '|' + msg.method);
         if (fns) for (const fn of [...fns]) fn(msg.params);
@@ -87,9 +123,14 @@ export class Browser {
   send(method, params = {}, sessionId, timeoutMs = 30000) {
     const id = this.nextId++;
     return new Promise((resolve, reject) => {
-      const timer = setTimeout(() => { this.pending.delete(id); reject(new Error('CDP timeout: ' + method)); }, timeoutMs);
+      const timer = setTimeout(() => {
+        this.pending.delete(id);
+        reject(new Error('CDP timeout: ' + method));
+      }, timeoutMs);
       this.pending.set(id, { resolve, reject, timer });
-      this.ws.send(JSON.stringify(sessionId ? { id, method, params, sessionId } : { id, method, params }));
+      this.ws.send(
+        JSON.stringify(sessionId ? { id, method, params, sessionId } : { id, method, params }),
+      );
     });
   }
 
@@ -100,34 +141,60 @@ export class Browser {
     return () => this.listeners.get(k)?.delete(fn);
   }
 
-  async newPage({ width = 1440, height = 900, dsf = 1, mobile = false, reducedMotion = false } = {}) {
-    const { targetId } = await this.send('Target.createTarget', { url: 'about:blank', newWindow: true });
+  async newPage({
+    width = 1440,
+    height = 900,
+    dsf = 1,
+    mobile = false,
+    reducedMotion = false,
+  } = {}) {
+    const { targetId } = await this.send('Target.createTarget', {
+      url: 'about:blank',
+      newWindow: true,
+    });
     const { sessionId } = await this.send('Target.attachToTarget', { targetId, flatten: true });
     const p = new Page(this, targetId, sessionId);
     await p.send('Page.enable');
     await p.send('Runtime.enable');
     await p.setViewport({ width, height, dsf, mobile });
     if (reducedMotion) {
-      await p.send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] });
+      await p.send('Emulation.setEmulatedMedia', {
+        features: [{ name: 'prefers-reduced-motion', value: 'reduce' }],
+      });
     }
     return p;
   }
 
   async close() {
-    try { await this.send('Browser.close', {}, undefined, 3000); } catch {}
-    try { this.ws.close(); } catch {}
-    try { this.proc.kill(); } catch {}
+    try {
+      await this.send('Browser.close', {}, undefined, 3000);
+    } catch {}
+    try {
+      this.ws.close();
+    } catch {}
+    try {
+      this.proc.kill();
+    } catch {}
     await sleep(300);
-    try { rmSync(this.dir, { recursive: true, force: true, maxRetries: 3 }); } catch {}
+    try {
+      rmSync(this.dir, { recursive: true, force: true, maxRetries: 3 });
+    } catch {}
   }
 }
 
 export class Page {
   constructor(browser, targetId, sessionId) {
-    this.browser = browser; this.targetId = targetId; this.sessionId = sessionId;
+    this.browser = browser;
+    this.targetId = targetId;
+    this.sessionId = sessionId;
     this.consoleErrors = [];
     browser.on(sessionId, 'Runtime.exceptionThrown', (p) => {
-      this.consoleErrors.push((p.exceptionDetails?.exception?.description || p.exceptionDetails?.text || '').slice(0, 300));
+      this.consoleErrors.push(
+        (p.exceptionDetails?.exception?.description || p.exceptionDetails?.text || '').slice(
+          0,
+          300,
+        ),
+      );
     });
     // Never let a JS dialog block the page.
     browser.on(sessionId, 'Page.javascriptDialogOpening', () => {
@@ -141,16 +208,28 @@ export class Page {
 
   async setViewport({ width, height, dsf = 1, mobile = false }) {
     this.viewport = { width, height, dsf, mobile };
-    await this.send('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: dsf, mobile });
+    await this.send('Emulation.setDeviceMetricsOverride', {
+      width,
+      height,
+      deviceScaleFactor: dsf,
+      mobile,
+    });
     await this.send('Emulation.setTouchEmulationEnabled', { enabled: !!mobile });
   }
 
   // Navigates and resolves after the load event (or timeout), then waits `settleMs` for intros to finish.
   async goto(url, { timeoutMs = 25000, settleMs = 1500 } = {}) {
     let off;
-    const loaded = new Promise((resolve) => { off = this.browser.on(this.sessionId, 'Page.loadEventFired', () => resolve('load')); });
-    const nav = await this.send('Page.navigate', { url }, timeoutMs).catch((e) => ({ errorText: e.message }));
-    if (nav.errorText && !/ERR_ABORTED/.test(nav.errorText)) { off(); throw new Error('navigate: ' + nav.errorText); }
+    const loaded = new Promise((resolve) => {
+      off = this.browser.on(this.sessionId, 'Page.loadEventFired', () => resolve('load'));
+    });
+    const nav = await this.send('Page.navigate', { url }, timeoutMs).catch((e) => ({
+      errorText: e.message,
+    }));
+    if (nav.errorText && !/ERR_ABORTED/.test(nav.errorText)) {
+      off();
+      throw new Error('navigate: ' + nav.errorText);
+    }
     const how = await Promise.race([loaded, sleep(timeoutMs).then(() => 'timeout')]);
     off();
     await sleep(settleMs);
@@ -159,12 +238,19 @@ export class Page {
 
   // Evaluates a function (serialised) or an expression string in the page and returns its JSON value.
   async eval(fnOrExpr, arg) {
-    const expression = typeof fnOrExpr === 'function'
-      ? `(${fnOrExpr.toString()})(${arg === undefined ? '' : JSON.stringify(arg)})`
-      : fnOrExpr;
-    const r = await this.send('Runtime.evaluate', { expression, awaitPromise: true, returnByValue: true }, 30000);
+    const expression =
+      typeof fnOrExpr === 'function'
+        ? `(${fnOrExpr.toString()})(${arg === undefined ? '' : JSON.stringify(arg)})`
+        : fnOrExpr;
+    const r = await this.send(
+      'Runtime.evaluate',
+      { expression, awaitPromise: true, returnByValue: true },
+      30000,
+    );
     if (r.exceptionDetails) {
-      throw new Error('page eval: ' + (r.exceptionDetails.exception?.description || r.exceptionDetails.text));
+      throw new Error(
+        'page eval: ' + (r.exceptionDetails.exception?.description || r.exceptionDetails.text),
+      );
     }
     return r.result?.value;
   }
@@ -175,7 +261,13 @@ export class Page {
     if (fullPage) {
       const m = await this.send('Page.getLayoutMetrics');
       const s = m.cssContentSize || m.contentSize;
-      params.clip = { x: 0, y: 0, width: Math.ceil(s.width), height: Math.min(Math.ceil(s.height), 16000), scale: 1 };
+      params.clip = {
+        x: 0,
+        y: 0,
+        width: Math.ceil(s.width),
+        height: Math.min(Math.ceil(s.height), 16000),
+        scale: 1,
+      };
     } else if (clip) {
       params.clip = { scale: 1, ...clip };
     }
@@ -191,14 +283,22 @@ export class Page {
     let left = Math.abs(totalDeltaY);
     while (left > 0) {
       const d = Math.min(step, left);
-      await this.send('Input.dispatchMouseEvent', { type: 'mouseWheel', x: Math.round(width / 2), y: Math.round(height / 2), deltaX: 0, deltaY: d * dir }).catch(() => {});
+      await this.send('Input.dispatchMouseEvent', {
+        type: 'mouseWheel',
+        x: Math.round(width / 2),
+        y: Math.round(height / 2),
+        deltaX: 0,
+        deltaY: d * dir,
+      }).catch(() => {});
       left -= d;
       await sleep(pauseMs);
     }
   }
 
   async close() {
-    try { await this.browser.send('Target.closeTarget', { targetId: this.targetId }, undefined, 5000); } catch {}
+    try {
+      await this.browser.send('Target.closeTarget', { targetId: this.targetId }, undefined, 5000);
+    } catch {}
   }
 }
 

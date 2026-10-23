@@ -1,7 +1,80 @@
 @import "tailwindcss" source(".");
+@import "@heroui/styles";
 @import "loaders.css/loaders.min.css";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Local Offline WOFF Fonts */
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('./assets/fonts/plus-jakarta-sans-500.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('./assets/fonts/plus-jakarta-sans-600.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./assets/fonts/plus-jakarta-sans-700.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./assets/fonts/geist-400.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('./assets/fonts/geist-500.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('./assets/fonts/geist-600.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Space Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./assets/fonts/space-mono-400.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Space Mono';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./assets/fonts/space-mono-700.woff') format('woff');
+}
+
 @theme {
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-heading: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-body: 'Geist', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'Space Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -35,11 +108,19 @@
   --color-ring: hsl(var(--ring));
   --color-sidebar: hsl(var(--sidebar));
 
+  --color-default: var(--default, hsl(var(--secondary)));
+  --color-default-foreground: var(--default-foreground, hsl(var(--foreground)));
+
   --color-chart-1: hsl(var(--chart-1));
   --color-chart-2: hsl(var(--chart-2));
   --color-chart-3: hsl(var(--chart-3));
   --color-chart-4: hsl(var(--chart-4));
   --color-chart-5: hsl(var(--chart-5));
+}
+
+.switch {
+  --switch-control-bg-checked: hsl(var(--accent));
+  --switch-control-bg-checked-hover: color-mix(in oklab, hsl(var(--accent)) 85%, black 15%);
 }
 
 :root {
@@ -49,14 +130,14 @@
   --card-foreground: 0 0% 5%;
   --popover: 0 0% 97%;
   --popover-foreground: 0 0% 5%;
-  --primary: 43 55% 58%;
-  --primary-foreground: 0 0% 100%;
+  --primary: 43 75% 42%;
+  --primary-foreground: 0 0% 98%;
   --secondary: 0 0% 92%;
   --secondary-foreground: 0 0% 11%;
   --muted: 0 0% 90%;
   --muted-foreground: 0 0% 47%;
-  --accent: 43 55% 58%;
-  --accent-foreground: 0 0% 100%;
+  --accent: 43 75% 42%;
+  --accent-foreground: 0 0% 98%;
   --destructive: 0 84.2% 60.2%;
   --destructive-foreground: 0 0% 98%;
   --border: 0 0% 85%;
@@ -84,8 +165,8 @@
   --secondary-foreground: 0 0% 95%;
   --muted: 0 0% 12%;
   --muted-foreground: 0 0% 60%;
-  --accent: 43 50% 45%;
-  --accent-foreground: 0 0% 95%;
+  --accent: 43 75% 56%;
+  --accent-foreground: 0 0% 8%;
   --destructive: 0 62.8% 50%;
   --destructive-foreground: 0 0% 95%;
   --border: 0 0% 12%;
@@ -106,9 +187,20 @@
   html,
   body {
     @apply overflow-hidden;
+    font-family: var(--font-sans);
   }
   body {
     @apply bg-background text-foreground;
+  }
+  p, article, .font-body {
+    font-family: var(--font-body);
+  }
+  h1, h2, h3, h4, h5, h6, .font-heading {
+    font-family: var(--font-heading);
+    letter-spacing: -0.025em;
+  }
+  code, kbd, samp, pre, .font-mono {
+    font-family: var(--font-mono);
   }
   /* Hide scrollbars globally */
   * {
@@ -121,6 +213,9 @@
 }
 
 @layer utilities {
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
   .writing-vertical {
     writing-mode: vertical-rl;
     text-orientation: mixed;
@@ -177,7 +272,6 @@
   background-color: hsl(var(--muted-foreground)) !important;
 }
 
-
 /* Radix UI Dropdown Menu / Popover animations for Tailwind v4 */
 @keyframes radixContentShow {
   from {
@@ -205,16 +299,16 @@
   transform-origin: var(--radix-popper-transform-origin);
 }
 
-[data-state='open'][data-side='top'],
-[data-state='open'][data-side='bottom'],
-[data-state='open'][data-side='left'],
-[data-state='open'][data-side='right'] {
+[data-state="open"][data-side="top"],
+[data-state="open"][data-side="bottom"],
+[data-state="open"][data-side="left"],
+[data-state="open"][data-side="right"] {
   animation: radixContentShow 180ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-[data-state='closed'][data-side='top'],
-[data-state='closed'][data-side='bottom'],
-[data-state='closed'][data-side='left'],
-[data-state='closed'][data-side='right'] {
+[data-state="closed"][data-side="top"],
+[data-state="closed"][data-side="bottom"],
+[data-state="closed"][data-side="left"],
+[data-state="closed"][data-side="right"] {
   animation: radixContentHide 150ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }

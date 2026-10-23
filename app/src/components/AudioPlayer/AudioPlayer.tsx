@@ -561,7 +561,7 @@ export function AudioPlayer() {
           </div>
 
           {/* Time Display */}
-          <div className="flex items-center gap-2 text-sm text-muted-foreground shrink-0 min-w-[100px]">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground shrink-0 min-w-[100px] tabular-nums">
             <span className="font-mono">{formatAudioDuration(currentTime)}</span>
             <span>/</span>
             <span className="font-mono">{formatAudioDuration(duration)}</span>

@@ -35,14 +35,15 @@
  * unit tested in Node (tests/live-browser-ignores.test.mjs) without the full
  * overlay UI bundle.
  */
-(function (root) {
-  'use strict';
+((root) => {
   if (!root) return;
 
   // Keep in step with normalizeIgnoreRule / normalizeIgnoreValue in
   // cli/lib/impeccable-config.mjs.
   function normalizeIgnoreRule(rule) {
-    return String(rule || '').trim().toLowerCase();
+    return String(rule || '')
+      .trim()
+      .toLowerCase();
   }
 
   function normalizeIgnoreValue(value) {
@@ -75,8 +76,15 @@
         i += 1;
       } else if (c === '{') {
         const end = glob.indexOf('}', i);
-        if (end === -1) { re += '\\{'; i += 1; continue; }
-        const parts = glob.slice(i + 1, end).split(',').map((p) => p.replace(/[.+^$()|[\]\\]/g, '\\$&'));
+        if (end === -1) {
+          re += '\\{';
+          i += 1;
+          continue;
+        }
+        const parts = glob
+          .slice(i + 1, end)
+          .split(',')
+          .map((p) => p.replace(/[.+^$()|[\]\\]/g, '\\$&'));
         re += `(?:${parts.join('|')})`;
         i = end + 1;
       } else if (/[.+^$()|[\]\\]/.test(c)) {
@@ -200,8 +208,9 @@
     // detector.ignoreFiles waives whole files. When any glob names this
     // page, the scan itself is skipped; rule and value lists are returned
     // empty because nothing will run.
-    const ignoreFileGlobs = asArray(config.ignoreFiles)
-      .filter((glob) => typeof glob === 'string' && glob.trim());
+    const ignoreFileGlobs = asArray(config.ignoreFiles).filter(
+      (glob) => typeof glob === 'string' && glob.trim(),
+    );
     if (ignoreFileGlobs.length > 0 && matchesScope(ignoreFileGlobs, candidates)) {
       return { disabledRules: [], disabledValues: [], skipScan: true };
     }

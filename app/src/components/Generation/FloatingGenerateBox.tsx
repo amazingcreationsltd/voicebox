@@ -5,7 +5,6 @@ import { Dices, Loader2, SlidersHorizontal, Sparkles, Wand2 } from 'lucide-react
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { HiCheck } from 'react-icons/hi';
-import { getLanguageFlag } from './LanguageFlags';
 import { HiChevronUpDown, HiLanguage, HiSparkles } from 'react-icons/hi2';
 import { Button } from '@/components/ui/button';
 import {
@@ -37,6 +36,7 @@ import { useGenerationStore } from '@/stores/generationStore';
 import { useStoryStore } from '@/stores/storyStore';
 import { useUIStore } from '@/stores/uiStore';
 import { EngineModelSelector } from './EngineModelSelector';
+import { getLanguageFlag } from './LanguageFlags';
 import { ParalinguisticInput } from './ParalinguisticInput';
 
 interface FloatingGenerateBoxProps {
@@ -292,7 +292,7 @@ export function FloatingGenerateBox({
       }}
     >
       <motion.div
-        className="bg-background/30 backdrop-blur-2xl border border-accent/20 rounded-[2rem] shadow-2xl hover:bg-background/40 hover:border-accent/20 transition-all duration-300 p-3"
+        className="bg-background/30 backdrop-blur-2xl border border-accent/20 rounded-3xl shadow-2xl hover:bg-background/40 hover:border-accent/20 transition-all duration-300 p-3"
         transition={{ duration: 0.6, ease: 'easeInOut' }}
       >
         <Form {...form}>
@@ -438,13 +438,19 @@ export function FloatingGenerateBox({
                                         ? 'bg-accent text-accent-foreground border border-accent hover:bg-accent/90'
                                         : 'bg-card border border-border hover:bg-background/50',
                                     )}
-                                    aria-label={active ? t('generation.persona.ariaLabelActive') : t('generation.persona.ariaLabelInactive')}
+                                    aria-label={
+                                      active
+                                        ? t('generation.persona.ariaLabelActive')
+                                        : t('generation.persona.ariaLabelInactive')
+                                    }
                                     aria-pressed={active}
                                   >
                                     <Wand2 className="h-4 w-4" />
                                   </Button>
                                   <span className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 whitespace-nowrap rounded-md bg-popover px-3 py-1.5 text-xs text-popover-foreground border border-border opacity-0 transition-opacity group-hover:opacity-100 z-[9999]">
-                                    {active ? t('generation.persona.tooltipActive') : t('generation.persona.tooltipInactive')}
+                                    {active
+                                      ? t('generation.persona.tooltipActive')
+                                      : t('generation.persona.tooltipInactive')}
                                   </span>
                                 </div>
                               </FormControl>
@@ -590,7 +596,6 @@ export function FloatingGenerateBox({
                     </div>
                   )}
 
-
                   <FormField
                     control={form.control}
                     name="language"
@@ -598,7 +603,8 @@ export function FloatingGenerateBox({
                       const engineLangs = getLanguageOptionsForEngine(
                         form.watch('engine') || 'qwen',
                       );
-                      const currentLangOpt = engineLangs.find((l) => l.value === field.value) || engineLangs[0];
+                      const currentLangOpt =
+                        engineLangs.find((l) => l.value === field.value) || engineLangs[0];
                       return (
                         <FormItem className="flex-1 space-y-0">
                           <DropdownMenu>
@@ -611,8 +617,13 @@ export function FloatingGenerateBox({
                                 >
                                   <div className="flex items-center gap-2.5 min-w-0 flex-1">
                                     <div className="bg-accent text-accent-foreground flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-xs font-semibold shadow-xs overflow-hidden p-0.5">
-                                      {getLanguageFlag(field.value, 'w-full h-full object-cover rounded-xs') || (
-                                        <span>{field.value?.toUpperCase().slice(0, 2) || 'EN'}</span>
+                                      {getLanguageFlag(
+                                        field.value,
+                                        'w-full h-full object-cover rounded-xs',
+                                      ) || (
+                                        <span>
+                                          {field.value?.toUpperCase().slice(0, 2) || 'EN'}
+                                        </span>
                                       )}
                                     </div>
                                     <div className="flex flex-col text-left leading-tight min-w-0 flex-1">
@@ -631,7 +642,7 @@ export function FloatingGenerateBox({
                             <DropdownMenuContent
                               align="center"
                               side="top"
-                              className="w-[240px] rounded-lg p-0 overflow-hidden flex flex-col z-[9999]"
+                              className="w-[var(--radix-dropdown-menu-trigger-width)] rounded-xl p-0 overflow-hidden flex flex-col z-[9999]"
                             >
                               <div className="p-1.5 pb-0 bg-popover shrink-0">
                                 <div className="px-2 py-1.5 flex items-center gap-2.5">
@@ -639,7 +650,9 @@ export function FloatingGenerateBox({
                                     <HiLanguage className="size-4.5" />
                                   </div>
                                   <div className="flex flex-col min-w-0">
-                                    <p className="text-xs font-semibold leading-tight text-foreground">Language</p>
+                                    <p className="text-xs font-semibold leading-tight text-foreground">
+                                      Language
+                                    </p>
                                     <p className="text-muted-foreground text-[10px] leading-tight truncate mt-0.5">
                                       Select synthesis language
                                     </p>
@@ -651,36 +664,39 @@ export function FloatingGenerateBox({
                                 </DropdownMenuLabel>
                               </div>
                               <div className="overflow-y-auto max-h-[240px] p-1.5 pt-0.5 space-y-0.5">
-                              {engineLangs.map((lang) => {
-                                const isSelected = lang.value === field.value;
-                                return (
-                                  <DropdownMenuItem
-                                    key={lang.value}
-                                    onClick={() => field.onChange(lang.value)}
-                                    className={cn(
-                                      'group flex items-center gap-2.5 rounded-md p-1.5 text-xs cursor-pointer transition-colors focus:outline-none',
-                                      isSelected
-                                        ? 'bg-accent text-accent-foreground font-medium focus:bg-accent focus:text-accent-foreground'
-                                        : 'text-foreground/90 hover:bg-white/[0.08] focus:bg-white/[0.08] focus:text-foreground'
-                                    )}
-                                  >
-                                    <div
+                                {engineLangs.map((lang) => {
+                                  const isSelected = lang.value === field.value;
+                                  return (
+                                    <DropdownMenuItem
+                                      key={lang.value}
+                                      onClick={() => field.onChange(lang.value)}
                                       className={cn(
-                                        'flex h-6 w-6 shrink-0 items-center justify-center rounded text-[10px] font-semibold transition-colors overflow-hidden p-0.5',
+                                        'group flex items-center gap-2.5 rounded-md p-1.5 text-xs cursor-pointer transition-colors focus:outline-none',
                                         isSelected
-                                          ? 'bg-accent-foreground/20 text-accent-foreground'
-                                          : 'bg-muted/70 text-muted-foreground group-hover:bg-muted group-hover:text-foreground group-focus:text-foreground'
+                                          ? 'bg-accent text-accent-foreground font-medium focus:bg-accent focus:text-accent-foreground'
+                                          : 'text-foreground/90 hover:bg-white/[0.08] focus:bg-white/[0.08] focus:text-foreground',
                                       )}
                                     >
-                                      {getLanguageFlag(lang.value, 'w-full h-full object-cover rounded-xs shadow-xs') || (
-                                        <span>{lang.value.toUpperCase().slice(0, 2)}</span>
+                                      <div
+                                        className={cn(
+                                          'flex h-6 w-6 shrink-0 items-center justify-center rounded text-[10px] font-semibold transition-colors overflow-hidden p-0.5',
+                                          isSelected
+                                            ? 'bg-accent-foreground/20 text-accent-foreground'
+                                            : 'bg-muted/70 text-muted-foreground group-hover:bg-muted group-hover:text-foreground group-focus:text-foreground',
+                                        )}
+                                      >
+                                        {getLanguageFlag(
+                                          lang.value,
+                                          'w-full h-full object-cover rounded-xs shadow-xs',
+                                        ) || <span>{lang.value.toUpperCase().slice(0, 2)}</span>}
+                                      </div>
+                                      <span className="flex-1 truncate">{lang.label}</span>
+                                      {isSelected && (
+                                        <HiCheck className="size-3.5 shrink-0 ml-auto" />
                                       )}
-                                    </div>
-                                    <span className="flex-1 truncate">{lang.label}</span>
-                                    {isSelected && <HiCheck className="size-3.5 shrink-0 ml-auto" />}
-                                  </DropdownMenuItem>
-                                );
-                              })}
+                                    </DropdownMenuItem>
+                                  );
+                                })}
                               </div>
                             </DropdownMenuContent>
                           </DropdownMenu>
@@ -731,7 +747,7 @@ export function FloatingGenerateBox({
                           <DropdownMenuContent
                             align="center"
                             side="top"
-                            className="w-[240px] rounded-lg p-0 overflow-hidden flex flex-col z-[9999]"
+                            className="w-[var(--radix-dropdown-menu-trigger-width)] rounded-xl p-0 overflow-hidden flex flex-col z-[9999]"
                           >
                             <div className="p-1.5 pb-0 bg-popover shrink-0">
                               <div className="px-2 py-1.5 flex items-center gap-2.5">
@@ -739,7 +755,9 @@ export function FloatingGenerateBox({
                                   <HiSparkles className="size-4.5" />
                                 </div>
                                 <div className="flex flex-col min-w-0">
-                                  <p className="text-xs font-semibold leading-tight text-foreground">Voice Effects</p>
+                                  <p className="text-xs font-semibold leading-tight text-foreground">
+                                    Voice Effects
+                                  </p>
                                   <p className="text-muted-foreground text-[10px] leading-tight truncate mt-0.5">
                                     Apply post-processing effects
                                   </p>
@@ -751,82 +769,91 @@ export function FloatingGenerateBox({
                               </DropdownMenuLabel>
                             </div>
                             <div className="overflow-y-auto max-h-[240px] p-1.5 pt-0.5 space-y-0.5">
-                            <DropdownMenuItem
-                              onClick={() => setSelectedPresetId(null)}
-                              className={cn(
-                                'group flex items-center gap-2.5 rounded-md p-1.5 text-xs cursor-pointer transition-colors focus:outline-none',
-                                !hasActiveEffect
-                                  ? 'bg-accent text-accent-foreground font-medium focus:bg-accent focus:text-accent-foreground'
-                                  : 'text-foreground/90 hover:bg-white/[0.08] focus:bg-white/[0.08] focus:text-foreground'
-                              )}
-                            >
-                              <div
-                                className={cn(
-                                  'flex h-6 w-6 shrink-0 items-center justify-center rounded text-[10px] font-semibold transition-colors',
-                                  !hasActiveEffect
-                                    ? 'bg-accent-foreground/20 text-accent-foreground'
-                                    : 'bg-muted text-muted-foreground group-hover:text-foreground group-focus:text-foreground'
-                                )}
-                              >
-                                FX
-                              </div>
-                              <span className="flex-1 truncate">{t('generation.effects.none')}</span>
-                              {!hasActiveEffect && <HiCheck className="size-3.5 shrink-0 ml-auto" />}
-                            </DropdownMenuItem>
-                            {selectedProfile?.effects_chain && selectedProfile.effects_chain.length > 0 && (
                               <DropdownMenuItem
-                                onClick={() => setSelectedPresetId('_profile')}
+                                onClick={() => setSelectedPresetId(null)}
                                 className={cn(
                                   'group flex items-center gap-2.5 rounded-md p-1.5 text-xs cursor-pointer transition-colors focus:outline-none',
-                                  selectedPresetId === '_profile'
+                                  !hasActiveEffect
                                     ? 'bg-accent text-accent-foreground font-medium focus:bg-accent focus:text-accent-foreground'
-                                    : 'text-foreground/90 hover:bg-white/[0.08] focus:bg-white/[0.08] focus:text-foreground'
+                                    : 'text-foreground/90 hover:bg-white/[0.08] focus:bg-white/[0.08] focus:text-foreground',
                                 )}
                               >
                                 <div
                                   className={cn(
                                     'flex h-6 w-6 shrink-0 items-center justify-center rounded text-[10px] font-semibold transition-colors',
-                                    selectedPresetId === '_profile'
+                                    !hasActiveEffect
                                       ? 'bg-accent-foreground/20 text-accent-foreground'
-                                      : 'bg-muted text-muted-foreground group-hover:text-foreground group-focus:text-foreground'
+                                      : 'bg-muted text-muted-foreground group-hover:text-foreground group-focus:text-foreground',
                                   )}
                                 >
-                                  PR
+                                  FX
                                 </div>
-                                <span className="flex-1 truncate">{t('generation.effects.profileDefault')}</span>
-                                {selectedPresetId === '_profile' && (
+                                <span className="flex-1 truncate">
+                                  {t('generation.effects.none')}
+                                </span>
+                                {!hasActiveEffect && (
                                   <HiCheck className="size-3.5 shrink-0 ml-auto" />
                                 )}
                               </DropdownMenuItem>
-                            )}
-                            {effectPresets?.map((preset) => {
-                              const isSelected = selectedPresetId === preset.id;
-                              return (
-                                <DropdownMenuItem
-                                  key={preset.id}
-                                  onClick={() => setSelectedPresetId(preset.id)}
-                                  className={cn(
-                                    'group flex items-center gap-2.5 rounded-md p-1.5 text-xs cursor-pointer transition-colors focus:outline-none',
-                                    isSelected
-                                      ? 'bg-accent text-accent-foreground font-medium focus:bg-accent focus:text-accent-foreground'
-                                      : 'text-foreground/90 hover:bg-white/[0.08] focus:bg-white/[0.08] focus:text-foreground'
-                                  )}
-                                >
-                                  <div
+                              {selectedProfile?.effects_chain &&
+                                selectedProfile.effects_chain.length > 0 && (
+                                  <DropdownMenuItem
+                                    onClick={() => setSelectedPresetId('_profile')}
                                     className={cn(
-                                      'flex h-6 w-6 shrink-0 items-center justify-center rounded text-[10px] font-semibold transition-colors',
-                                      isSelected
-                                        ? 'bg-accent-foreground/20 text-accent-foreground'
-                                        : 'bg-muted text-muted-foreground group-hover:text-foreground group-focus:text-foreground'
+                                      'group flex items-center gap-2.5 rounded-md p-1.5 text-xs cursor-pointer transition-colors focus:outline-none',
+                                      selectedPresetId === '_profile'
+                                        ? 'bg-accent text-accent-foreground font-medium focus:bg-accent focus:text-accent-foreground'
+                                        : 'text-foreground/90 hover:bg-white/[0.08] focus:bg-white/[0.08] focus:text-foreground',
                                     )}
                                   >
-                                    FX
-                                  </div>
-                                  <span className="flex-1 truncate">{preset.name}</span>
-                                  {isSelected && <HiCheck className="size-3.5 shrink-0 ml-auto" />}
-                                </DropdownMenuItem>
-                              );
-                            })}
+                                    <div
+                                      className={cn(
+                                        'flex h-6 w-6 shrink-0 items-center justify-center rounded text-[10px] font-semibold transition-colors',
+                                        selectedPresetId === '_profile'
+                                          ? 'bg-accent-foreground/20 text-accent-foreground'
+                                          : 'bg-muted text-muted-foreground group-hover:text-foreground group-focus:text-foreground',
+                                      )}
+                                    >
+                                      PR
+                                    </div>
+                                    <span className="flex-1 truncate">
+                                      {t('generation.effects.profileDefault')}
+                                    </span>
+                                    {selectedPresetId === '_profile' && (
+                                      <HiCheck className="size-3.5 shrink-0 ml-auto" />
+                                    )}
+                                  </DropdownMenuItem>
+                                )}
+                              {effectPresets?.map((preset) => {
+                                const isSelected = selectedPresetId === preset.id;
+                                return (
+                                  <DropdownMenuItem
+                                    key={preset.id}
+                                    onClick={() => setSelectedPresetId(preset.id)}
+                                    className={cn(
+                                      'group flex items-center gap-2.5 rounded-md p-1.5 text-xs cursor-pointer transition-colors focus:outline-none',
+                                      isSelected
+                                        ? 'bg-accent text-accent-foreground font-medium focus:bg-accent focus:text-accent-foreground'
+                                        : 'text-foreground/90 hover:bg-white/[0.08] focus:bg-white/[0.08] focus:text-foreground',
+                                    )}
+                                  >
+                                    <div
+                                      className={cn(
+                                        'flex h-6 w-6 shrink-0 items-center justify-center rounded text-[10px] font-semibold transition-colors',
+                                        isSelected
+                                          ? 'bg-accent-foreground/20 text-accent-foreground'
+                                          : 'bg-muted text-muted-foreground group-hover:text-foreground group-focus:text-foreground',
+                                      )}
+                                    >
+                                      FX
+                                    </div>
+                                    <span className="flex-1 truncate">{preset.name}</span>
+                                    {isSelected && (
+                                      <HiCheck className="size-3.5 shrink-0 ml-auto" />
+                                    )}
+                                  </DropdownMenuItem>
+                                );
+                              })}
                             </div>
                           </DropdownMenuContent>
                         </DropdownMenu>

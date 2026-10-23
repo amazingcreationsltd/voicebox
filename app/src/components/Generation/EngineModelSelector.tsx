@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import type { UseFormReturn } from 'react-hook-form';
-import { FormControl } from '@/components/ui/form';
 import { HiCheck } from 'react-icons/hi';
 import { HiChevronUpDown } from 'react-icons/hi2';
 import { Button } from '@/components/ui/button';
@@ -12,11 +11,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { cn } from '@/lib/utils/cn';
+import { FormControl } from '@/components/ui/form';
 import type { VoiceProfileResponse } from '@/lib/api/types';
 import { getLanguageOptionsForEngine } from '@/lib/constants/languages';
-import { getEngineLogo, CpuAiIcon } from './ModelLogos';
 import type { GenerationFormValues } from '@/lib/hooks/useGenerationForm';
+import { cn } from '@/lib/utils/cn';
+import { CpuAiIcon, getEngineLogo } from './ModelLogos';
 
 /**
  * Engine/model options and their display metadata.
@@ -147,7 +147,8 @@ export function EngineModelSelector({ form, compact, selectedProfile }: EngineMo
     }
   }, [availableOptions, currentEngineAvailable, form]);
 
-  const currentOption = availableOptions.find((opt) => opt.value === selectValue) || availableOptions[0];
+  const currentOption =
+    availableOptions.find((opt) => opt.value === selectValue) || availableOptions[0];
 
   return (
     <DropdownMenu>
@@ -158,7 +159,7 @@ export function EngineModelSelector({ form, compact, selectedProfile }: EngineMo
             variant="ghost"
             className={cn(
               'h-11 text-xs bg-card border border-border rounded-xl hover:bg-background/50 transition-all pl-2 pr-3 font-normal flex items-center justify-between w-full gap-2.5',
-              compact && 'h-11 text-xs'
+              compact && 'h-11 text-xs',
             )}
           >
             <div className="flex items-center gap-2.5 min-w-0 flex-1">
@@ -183,7 +184,7 @@ export function EngineModelSelector({ form, compact, selectedProfile }: EngineMo
       <DropdownMenuContent
         align="center"
         side={compact ? 'top' : undefined}
-        className="w-[280px] rounded-lg p-0 overflow-hidden flex flex-col z-[9999]"
+        className="w-[var(--radix-dropdown-menu-trigger-width)] rounded-xl p-0 overflow-hidden flex flex-col z-[9999]"
       >
         {/* Sticky pinned header that never scrolls or gets clipped */}
         <div className="p-1.5 pb-0 bg-popover shrink-0">
@@ -192,7 +193,9 @@ export function EngineModelSelector({ form, compact, selectedProfile }: EngineMo
               <CpuAiIcon className="size-5" />
             </div>
             <div className="flex flex-col min-w-0">
-              <p className="text-xs font-semibold leading-tight text-foreground">TTS Engine & Model</p>
+              <p className="text-xs font-semibold leading-tight text-foreground">
+                TTS Engine & Model
+              </p>
               <p className="text-muted-foreground text-[10px] leading-tight truncate mt-0.5">
                 {getEngineDescription(engine) || 'Select speech synthesis engine'}
               </p>
@@ -206,50 +209,50 @@ export function EngineModelSelector({ form, compact, selectedProfile }: EngineMo
 
         {/* Scrollable list area below the pinned header */}
         <div className="overflow-y-auto max-h-[260px] p-1.5 pt-0.5 space-y-0.5">
-        {availableOptions.map((opt) => {
-          const isSelected = opt.value === selectValue;
-          return (
-            <DropdownMenuItem
-              key={opt.value}
-              onClick={() => applyEngineSelection(form, opt.value)}
-              className={cn(
-                'group flex items-center gap-2.5 rounded-md p-1.5 text-xs cursor-pointer transition-colors focus:outline-none',
-                isSelected
-                  ? 'bg-accent text-accent-foreground font-medium focus:bg-accent focus:text-accent-foreground'
-                  : 'text-foreground/90 hover:bg-white/[0.08] focus:bg-white/[0.08] focus:text-foreground'
-              )}
-            >
-              <div
+          {availableOptions.map((opt) => {
+            const isSelected = opt.value === selectValue;
+            return (
+              <DropdownMenuItem
+                key={opt.value}
+                onClick={() => applyEngineSelection(form, opt.value)}
                 className={cn(
-                  'flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-[10px] font-semibold transition-colors overflow-hidden p-1',
+                  'group flex items-center gap-2.5 rounded-md p-1.5 text-xs cursor-pointer transition-colors focus:outline-none',
                   isSelected
-                    ? 'bg-accent-foreground/20 text-accent-foreground'
-                    : 'bg-muted/70 text-muted-foreground group-hover:bg-muted group-hover:text-foreground group-focus:text-foreground'
+                    ? 'bg-accent text-accent-foreground font-medium focus:bg-accent focus:text-accent-foreground'
+                    : 'text-foreground/90 hover:bg-white/[0.08] focus:bg-white/[0.08] focus:text-foreground',
                 )}
               >
-                {getEngineLogo(opt.engine, 'size-4.5') || (
-                  <span>{opt.label.slice(0, 2).toUpperCase()}</span>
-                )}
-              </div>
-
-              <div className="flex flex-col min-w-0 flex-1">
-                <span className="truncate text-xs">{opt.label}</span>
-                <span
+                <div
                   className={cn(
-                    'text-[10px] truncate transition-colors',
+                    'flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-[10px] font-semibold transition-colors overflow-hidden p-1',
                     isSelected
-                      ? 'text-accent-foreground/80'
-                      : 'text-muted-foreground/80 group-hover:text-muted-foreground group-focus:text-muted-foreground'
+                      ? 'bg-accent-foreground/20 text-accent-foreground'
+                      : 'bg-muted/70 text-muted-foreground group-hover:bg-muted group-hover:text-foreground group-focus:text-foreground',
                   )}
                 >
-                  {ENGINE_DESCRIPTIONS[opt.engine] || opt.engine}
-                </span>
-              </div>
+                  {getEngineLogo(opt.engine, 'size-4.5') || (
+                    <span>{opt.label.slice(0, 2).toUpperCase()}</span>
+                  )}
+                </div>
 
-              {isSelected && <HiCheck className="size-3.5 shrink-0 ml-auto" />}
-            </DropdownMenuItem>
-          );
-        })}
+                <div className="flex flex-col min-w-0 flex-1">
+                  <span className="truncate text-xs">{opt.label}</span>
+                  <span
+                    className={cn(
+                      'text-[10px] truncate transition-colors',
+                      isSelected
+                        ? 'text-accent-foreground/80'
+                        : 'text-muted-foreground/80 group-hover:text-muted-foreground group-focus:text-muted-foreground',
+                    )}
+                  >
+                    {ENGINE_DESCRIPTIONS[opt.engine] || opt.engine}
+                  </span>
+                </div>
+
+                {isSelected && <HiCheck className="size-3.5 shrink-0 ml-auto" />}
+              </DropdownMenuItem>
+            );
+          })}
         </div>
       </DropdownMenuContent>
     </DropdownMenu>
